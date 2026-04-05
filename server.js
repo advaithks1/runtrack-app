@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// MongoDB
+// MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
@@ -27,7 +27,7 @@ const runRoutes = require("./routes/run");
 app.use("/api/auth", authRoutes);
 app.use("/api/runs", runRoutes);
 
-// Static page routes
+// Static Page Routes
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -52,8 +52,13 @@ app.get("/profile", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "profile.html"));
 });
 
+// Health check route
+app.get("/health", (req, res) => {
+  res.status(200).send("Server is running");
+});
+
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`🚀 Make U Run running on port ${PORT}`);
 });
