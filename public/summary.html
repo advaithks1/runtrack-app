@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Make U Run - Run Summary</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  />
+</head>
+<body class="home-body">
+
+  <div class="mobile-app-shell">
+    <div class="history-screen">
+
+      <header class="top-bar">
+        <div>
+          <h2>Run Summary</h2>
+          <p id="summarySubText">Your latest run</p>
+        </div>
+        <button class="small-btn" id="summaryHomeBtn">Home</button>
+      </header>
+
+      <section class="hero-card">
+        <h3>Nice work 🎉</h3>
+        <p>Your run has been saved successfully.</p>
+      </section>
+
+      <section class="map-card">
+        <div class="section-head">
+          <h3>Route Replay</h3>
+          <span>Latest</span>
+        </div>
+        <div id="summaryMap"></div>
+      </section>
+
+      <section class="stats-card">
+        <div class="section-head">
+          <h3>Summary Stats</h3>
+          <span id="summaryDate">Today</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-value" id="summaryDistance">0.00</div>
+            <div class="stat-label">KM</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="summaryTime">00:00</div>
+            <div class="stat-label">TIME</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="summaryCalories">0</div>
+            <div class="stat-label">CAL</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats-card">
+        <div class="section-head">
+          <h3>Average Pace</h3>
+          <span>Per KM</span>
+        </div>
+        <div class="single-stat">
+          <span id="summaryPace">0.00 min/km</span>
+        </div>
+      </section>
+
+      <section class="action-row">
+        <button class="secondary-btn half-btn" id="goHistoryBtn">History</button>
+        <button class="run-btn half-btn" id="goRunAgainBtn">Run Again</button>
+      </section>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" id="summaryNavHome">Home</button>
+        <button class="nav-item" id="summaryNavRun">Run</button>
+        <button class="nav-item" id="summaryNavHistory">History</button>
+        <button class="nav-item" id="summaryNavProfile">Profile</button>
+      </nav>
+
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+  ></script>
+
+  <script src="js/summary.js"></script>
+</body>
+</html>

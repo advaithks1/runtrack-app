@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Make U Run - Home</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="home-body">
+
+  <div class="mobile-app-shell">
+    <div class="home-screen">
+
+      <header class="top-bar">
+        <div>
+          <h2>Dashboard</h2>
+          <p id="homeUserText">Welcome back</p>
+        </div>
+        <button class="small-btn" id="homeLogoutBtn">Logout</button>
+      </header>
+
+      <section class="hero-card">
+        <h3>Ready for today’s run?</h3>
+        <p>Track your run live, monitor distance, and build consistency one step at a time.</p>
+      </section>
+
+      <section class="stats-card">
+        <div class="section-head">
+          <h3>All Time</h3>
+          <span>Overview</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-value" id="totalRunsValue">0</div>
+            <div class="stat-label">RUNS</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="totalDistanceValue">0.00</div>
+            <div class="stat-label">KM</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="totalCaloriesValue">0</div>
+            <div class="stat-label">CAL</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats-card">
+        <div class="section-head">
+          <h3>Smart Stats</h3>
+          <span>This week</span>
+        </div>
+
+        <div class="stats-grid stats-grid-2">
+          <div class="stat-box">
+            <div class="stat-value" id="weeklyDistanceValue">0.00</div>
+            <div class="stat-label">WEEKLY KM</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="longestRunValue">0.00</div>
+            <div class="stat-label">LONGEST KM</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="totalTimeValue">00:00</div>
+            <div class="stat-label">TOTAL TIME</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="streakValue">0</div>
+            <div class="stat-label">STREAK</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="info-card">
+        <div class="section-head">
+          <h3>Quick Access</h3>
+          <span>Actions</span>
+        </div>
+
+        <div class="quick-grid">
+          <button class="quick-box" id="goRunBtn">
+            <span class="quick-title">Start Run</span>
+            <span class="quick-sub">Track live with GPS + map</span>
+          </button>
+
+          <button class="quick-box" id="goHistoryBtn">
+            <span class="quick-title">History</span>
+            <span class="quick-sub">View all saved runs</span>
+          </button>
+
+          <button class="quick-box" id="goSummaryBtn">
+            <span class="quick-title">Latest Summary</span>
+            <span class="quick-sub">See your most recent run</span>
+          </button>
+
+          <button class="quick-box" id="goProfileBtn">
+            <span class="quick-title">Profile</span>
+            <span class="quick-sub">Your stats + logout</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="info-card">
+        <h3>Motivation</h3>
+        <p id="motivationText">Start your first run today and build your streak.</p>
+      </section>
+
+      <nav class="bottom-nav">
+        <button class="nav-item active" id="homeNavHome">Home</button>
+        <button class="nav-item" id="homeNavRun">Run</button>
+        <button class="nav-item" id="homeNavHistory">History</button>
+        <button class="nav-item" id="homeNavProfile">Profile</button>
+      </nav>
+
+    </div>
+  </div>
+
+  <script src="js/home.js"></script>
+</body>
+</html>

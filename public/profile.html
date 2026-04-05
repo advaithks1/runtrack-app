@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Make U Run - Profile</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="home-body">
+
+  <div class="mobile-app-shell">
+    <div class="history-screen">
+
+      <header class="top-bar">
+        <div>
+          <h2>Profile</h2>
+          <p id="profileUserText">Your account</p>
+        </div>
+        <button class="small-btn" id="profileLogoutBtn">Logout</button>
+      </header>
+
+      <section class="hero-card">
+        <h3 id="profileMainName">Runner</h3>
+        <p>Keep showing up. Small runs become big progress.</p>
+      </section>
+
+      <section class="stats-card">
+        <div class="section-head">
+          <h3>Your Stats</h3>
+          <span>Overview</span>
+        </div>
+
+        <div class="stats-grid stats-grid-2">
+          <div class="stat-box">
+            <div class="stat-value" id="profileRunsValue">0</div>
+            <div class="stat-label">TOTAL RUNS</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="profileDistanceValue">0.00</div>
+            <div class="stat-label">TOTAL KM</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="profileWeeklyValue">0.00</div>
+            <div class="stat-label">WEEKLY KM</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="profileStreakValue">0</div>
+            <div class="stat-label">STREAK</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="info-card">
+        <div class="section-head">
+          <h3>Account</h3>
+          <span>Secure</span>
+        </div>
+        <p id="profileAccountText">Logged in securely with session cookie.</p>
+      </section>
+
+      <section class="action-row">
+        <button class="secondary-btn half-btn" id="profileGoHomeBtn">Home</button>
+        <button class="run-btn half-btn" id="profileGoRunBtn">Run Now</button>
+      </section>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" id="profileNavHome">Home</button>
+        <button class="nav-item" id="profileNavRun">Run</button>
+        <button class="nav-item" id="profileNavHistory">History</button>
+        <button class="nav-item active" id="profileNavProfile">Profile</button>
+      </nav>
+
+    </div>
+  </div>
+
+  <script src="js/profile.js"></script>
+</body>
+</html>

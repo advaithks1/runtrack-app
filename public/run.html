@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Make U Run - Live Run</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  />
+</head>
+<body class="home-body">
+
+  <div class="mobile-app-shell">
+    <div class="run-screen">
+
+      <header class="top-bar">
+        <div>
+          <h2>Live Run</h2>
+          <p id="runUserText">Tracking your movement</p>
+        </div>
+        <button class="small-btn" id="backHomeBtn">Home</button>
+      </header>
+
+      <section class="hero-card">
+        <h3>GPS Status</h3>
+        <p id="gpsStatus">Waiting to start...</p>
+      </section>
+
+      <section class="map-card">
+        <div class="section-head">
+          <h3>Live Route</h3>
+          <span>Map</span>
+        </div>
+        <div id="runMap"></div>
+      </section>
+
+      <section class="stats-card">
+        <div class="section-head">
+          <h3>Live Stats</h3>
+          <span>Real time</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-value" id="distanceValue">0.00</div>
+            <div class="stat-label">KM</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="timerValue">00:00</div>
+            <div class="stat-label">TIME</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="caloriesValue">0</div>
+            <div class="stat-label">CAL</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats-card">
+        <div class="section-head">
+          <h3>Average Pace</h3>
+          <span>Per KM</span>
+        </div>
+        <div class="single-stat">
+          <span id="paceValue">0.00 min/km</span>
+        </div>
+      </section>
+
+      <section class="action-stack">
+        <button class="primary-btn" id="startRunBtn">Start Run</button>
+
+        <div class="action-row">
+          <button class="secondary-btn half-btn" id="pauseResumeBtn" disabled>Pause</button>
+          <button class="run-btn half-btn" id="stopRunBtn" disabled>Finish & Save</button>
+        </div>
+      </section>
+
+      <section class="info-card">
+        <h3>Tip</h3>
+        <p>Use on mobile, allow location permission, and test outside for best GPS accuracy.</p>
+      </section>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" id="runNavHome">Home</button>
+        <button class="nav-item active" id="runNavRun">Run</button>
+        <button class="nav-item" id="runNavHistory">History</button>
+        <button class="nav-item" id="runNavProfile">Profile</button>
+      </nav>
+
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+  ></script>
+
+  <script src="js/run.js"></script>
+</body>
+</html>

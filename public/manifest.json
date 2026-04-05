@@ -1,0 +1,22 @@
+{
+  "name": "Make U Run",
+  "short_name": "MakeURun",
+  "description": "Track your running with live GPS, route map, stats and history.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#edf2f7",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

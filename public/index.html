@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Make U Run - Login</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="auth-body">
+
+  <div class="mobile-app-shell">
+    <div class="auth-screen">
+
+      <div class="brand-area">
+        <div class="brand-badge">🏃</div>
+        <h1>Make U Run</h1>
+        <p>Every step counts.</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" id="showLoginBtn">Login</button>
+        <button class="tab-btn" id="showRegisterBtn">Register</button>
+      </div>
+
+      <form class="auth-form" id="loginForm">
+        <label for="loginUserId">User ID</label>
+        <input type="text" id="loginUserId" placeholder="Enter your user ID" required />
+
+        <label for="loginPassword">Password</label>
+        <div class="password-wrap">
+          <input type="password" id="loginPassword" placeholder="Enter your password" required />
+          <button type="button" class="eye-btn" id="loginTogglePassword">Show</button>
+        </div>
+
+        <button type="submit" class="primary-btn">Login</button>
+      </form>
+
+      <form class="auth-form hidden" id="registerForm">
+        <label for="registerUserId">User ID</label>
+        <input type="text" id="registerUserId" placeholder="Create a user ID" required />
+
+        <label for="registerPassword">Password</label>
+        <div class="password-wrap">
+          <input type="password" id="registerPassword" placeholder="Create password (min 6 chars)" required />
+          <button type="button" class="eye-btn" id="registerTogglePassword">Show</button>
+        </div>
+
+        <button type="submit" class="primary-btn">Create Account</button>
+      </form>
+
+      <p class="message" id="authMessage"></p>
+
+    </div>
+  </div>
+
+  <script src="js/login.js"></script>
+</body>
+</html>

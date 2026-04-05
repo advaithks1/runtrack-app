@@ -1,0 +1,17 @@
+{
+  "name": "make-u-run",
+  "version": "5.0.0",
+  "description": "Make U Run - Final hosted GPS running tracker with secure cookie auth and PWA",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.23.0"
+  }
+}
