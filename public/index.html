@@ -2,55 +2,132 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>Make U Run - Login</title>
   <meta name="theme-color" content="#0f172a" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="auth-body">
-
   <div class="mobile-app-shell">
     <div class="auth-screen">
 
-      <div class="brand-area">
-        <div class="brand-badge">🏃</div>
+      <!-- Brand -->
+      <section class="brand-card">
         <h1>Make U Run</h1>
-        <p>Every step counts.</p>
-      </div>
+        <p>Track every run. Build every streak.</p>
+      </section>
 
-      <div class="tabs">
-        <button class="tab-btn active" id="showLoginBtn">Login</button>
-        <button class="tab-btn" id="showRegisterBtn">Register</button>
-      </div>
+      <!-- Toggle -->
+      <section class="auth-toggle-card">
+        <div class="auth-toggle">
+          <button class="toggle-btn active" id="showLoginBtn" type="button">Login</button>
+          <button class="toggle-btn" id="showRegisterBtn" type="button">Register</button>
+        </div>
+      </section>
 
-      <form class="auth-form" id="loginForm">
-        <label for="loginUserId">User ID</label>
-        <input type="text" id="loginUserId" placeholder="Enter your user ID" required />
+      <!-- Message -->
+      <section class="hero-card">
+        <h3>Status</h3>
+        <p id="authMessage">Welcome back! Login to continue.</p>
+      </section>
 
-        <label for="loginPassword">Password</label>
-        <div class="password-wrap">
-          <input type="password" id="loginPassword" placeholder="Enter your password" required />
-          <button type="button" class="eye-btn" id="loginTogglePassword">Show</button>
+      <!-- Login Form -->
+      <section class="auth-card" id="loginSection">
+        <div class="section-head">
+          <h3>Login</h3>
+          <span>Welcome back</span>
         </div>
 
-        <button type="submit" class="primary-btn">Login</button>
-      </form>
+        <form id="loginForm">
+          <div class="input-group">
+            <label for="loginUserId">User ID</label>
+            <input
+              type="text"
+              id="loginUserId"
+              placeholder="Enter your user ID"
+              autocomplete="username"
+              required
+            />
+          </div>
 
-      <form class="auth-form hidden" id="registerForm">
-        <label for="registerUserId">User ID</label>
-        <input type="text" id="registerUserId" placeholder="Create a user ID" required />
+          <div class="input-group">
+            <label for="loginPassword">Password</label>
+            <div class="password-wrap">
+              <input
+                type="password"
+                id="loginPassword"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                id="loginTogglePassword"
+              >
+                Show
+              </button>
+            </div>
+          </div>
 
-        <label for="registerPassword">Password</label>
-        <div class="password-wrap">
-          <input type="password" id="registerPassword" placeholder="Create password (min 6 chars)" required />
-          <button type="button" class="eye-btn" id="registerTogglePassword">Show</button>
+          <button class="primary-btn auth-submit-btn" type="submit">Login</button>
+        </form>
+      </section>
+
+      <!-- Register Form -->
+      <section class="auth-card hidden" id="registerSection">
+        <div class="section-head">
+          <h3>Create Account</h3>
+          <span>Start your journey</span>
         </div>
 
-        <button type="submit" class="primary-btn">Create Account</button>
-      </form>
+        <form id="registerForm">
+          <div class="input-group">
+            <label for="registerUserId">User ID</label>
+            <input
+              type="text"
+              id="registerUserId"
+              placeholder="Choose a user ID"
+              autocomplete="username"
+              required
+            />
+          </div>
 
-      <p class="message" id="authMessage"></p>
+          <div class="input-group">
+            <label for="registerPassword">Password</label>
+            <div class="password-wrap">
+              <input
+                type="password"
+                id="registerPassword"
+                placeholder="Create a password"
+                autocomplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                id="registerTogglePassword"
+              >
+                Show
+              </button>
+            </div>
+          </div>
+
+          <button class="primary-btn auth-submit-btn" type="submit">Create Account</button>
+        </form>
+      </section>
+
+      <!-- Footer Note -->
+      <section class="info-card">
+        <h3>Why Make U Run?</h3>
+        <p>
+          Simple live GPS tracking, clean run history, streak building, and fast progress tracking — all in one place.
+        </p>
+      </section>
 
     </div>
   </div>

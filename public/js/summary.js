@@ -1,27 +1,154 @@
-const summarySubText = document.getElementById("summarySubText");
-const summaryDate = document.getElementById("summaryDate");
-const summaryDistance = document.getElementById("summaryDistance");
-const summaryTime = document.getElementById("summaryTime");
-const summaryCalories = document.getElementById("summaryCalories");
-const summaryPace = document.getElementById("summaryPace");
+const summaryUserText = document.getElementById("summaryUserText");
+const latestDistance = document.getElementById("latestDistance");
+const latestTime = document.getElementById("latestTime");
+const latestCalories = document.getElementById("latestCalories");
+const latestPace = document.getElementById("latestPace");
+const summaryStatus = document.getElementById("summaryStatus");
 
-const summaryHomeBtn = document.getElementById("summaryHomeBtn");
-const goHistoryBtn = document.getElementById("goHistoryBtn");
-const goRunAgainBtn = document.getElementById("goRunAgainBtn");
+const summaryBackHomeBtn = document.getElementById("summaryBackHomeBtn");
+const summaryRunAgainBtn = document.getElementById("summaryRunAgainBtn");
+const summaryGoHistoryBtn = document.getElementById("summaryGoHistoryBtn");
+const summaryGoProfileBtn = document.getElementById("summaryGoProfileBtn");
 
 const summaryNavHome = document.getElementById("summaryNavHome");
 const summaryNavRun = document.getElementById("summaryNavRun");
 const summaryNavHistory = document.getElementById("summaryNavHistory");
 const summaryNavProfile = document.getElementById("summaryNavProfile");
 
-let summaryMap;
-let summaryRouteLine;
+let summaryMap = null;
+let summaryRouteLine = null;
+let summaryMarker = null;
 
 function formatTime(totalSeconds) {
-  const total = Number(totalSeconds) || 0;
-  const mins = Math.floor(total / 60);
-  const secs = total % 60;
+  const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
+
+  const hrs = Math.floor(safeSeconds / 3600);
+  const mins = Math.floor((safeSeconds % 3600) / 60);
+  const secs = safeSeconds % 60;
+
+  if (hrs > 0) {
+    return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+function formatPace(value) {
+  const safePace = Number(value);
+
+  if (!Number.isFinite(safePace) || safePace <= 0) {
+    return "--";
+  }
+
+  return `${safePace.toFixed(2)} min/km`;
+}
+
+function sanitizeRun(run = {}) {
+  return {
+    distanceKm: Math.max(0, Number(run.distanceKm) || 0),
+    durationSec: Math.max(0, Math.floor(Number(run.durationSec) || 0)),
+    calories: Math.max(0, Math.round(Number(run.calories) || 0)),
+    avgPaceMinPerKm: Number(run.avgPaceMinPerKm) || 0,
+    routePoints: Array.isArray(run.routePoints) ? run.routePoints : []
+  };
+}
+
+function setSummaryValues(run = {}) {
+  const safeRun = sanitizeRun(run);
+
+  if (latestDistance) {
+    latestDistance.textContent = safeRun.distanceKm.toFixed(2);
+  }
+
+  if (latestTime) {
+    latestTime.textContent = formatTime(safeRun.durationSec);
+  }
+
+  if (latestCalories) {
+    latestCalories.textContent = safeRun.calories;
+  }
+
+  if (latestPace) {
+    latestPace.textContent = formatPace(safeRun.avgPaceMinPerKm);
+  }
+}
+
+function setSummaryStatus(text) {
+  if (summaryStatus) {
+    summaryStatus.textContent = text;
+  }
+}
+
+function initSummaryMap() {
+  const mapEl = document.getElementById("summaryMap");
+  if (!mapEl || typeof L === "undefined") return;
+
+  if (summaryMap) return;
+
+  summaryMap = L.map("summaryMap").setView([20.5937, 78.9629], 5);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(summaryMap);
+
+  summaryRouteLine = L.polyline([], { weight: 5 }).addTo(summaryMap);
+
+  setTimeout(() => {
+    if (summaryMap) {
+      summaryMap.invalidateSize();
+    }
+  }, 250);
+}
+
+function clearSummaryMap() {
+  if (summaryRouteLine) {
+    summaryRouteLine.setLatLngs([]);
+  }
+
+  if (summaryMarker && summaryMap) {
+    summaryMap.removeLayer(summaryMarker);
+    summaryMarker = null;
+  }
+}
+
+function renderSummaryRoute(routePoints = []) {
+  if (!summaryMap || !summaryRouteLine) return;
+
+  const validPoints = Array.isArray(routePoints)
+    ? routePoints.filter(
+        (point) =>
+          point &&
+          Number.isFinite(Number(point.lat)) &&
+          Number.isFinite(Number(point.lng))
+      ).map((point) => ({
+        lat: Number(point.lat),
+        lng: Number(point.lng)
+      }))
+    : [];
+
+  clearSummaryMap();
+
+  if (validPoints.length === 0) {
+    summaryMap.setView([20.5937, 78.9629], 5);
+    setSummaryStatus("Run loaded. Route unavailable.");
+    return;
+  }
+
+  const latLngs = validPoints.map((point) => [point.lat, point.lng]);
+
+  summaryRouteLine.setLatLngs(latLngs);
+
+  const last = validPoints[validPoints.length - 1];
+  summaryMarker = L.marker([last.lat, last.lng]).addTo(summaryMap);
+
+  if (validPoints.length > 1) {
+    const bounds = L.latLngBounds(latLngs);
+    summaryMap.fitBounds(bounds, { padding: [20, 20] });
+  } else {
+    summaryMap.setView([last.lat, last.lng], 17);
+  }
+
+  setSummaryStatus("Latest run loaded successfully.");
 }
 
 async function ensureAuth() {
@@ -39,43 +166,16 @@ async function ensureAuth() {
     const data = await res.json();
     return data.user;
   } catch (error) {
-    console.error("Auth check error:", error);
+    console.error("Summary auth check error:", error);
     window.location.href = "/";
     return null;
   }
 }
 
-function initSummaryMap() {
-  summaryMap = L.map("summaryMap").setView([8.0883, 77.5385], 15);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(summaryMap);
-
-  summaryRouteLine = L.polyline([], { weight: 5 }).addTo(summaryMap);
-}
-
-function renderRoute(routePoints) {
-  if (!Array.isArray(routePoints) || routePoints.length === 0) {
-    summarySubText.textContent = "No route points available for this run";
-    return;
-  }
-
-  const latLngs = routePoints.map((p) => [p.lat, p.lng]);
-  summaryRouteLine.setLatLngs(latLngs);
-
-  L.marker(latLngs[0]).addTo(summaryMap);
-  L.marker(latLngs[latLngs.length - 1]).addTo(summaryMap);
-
-  summaryMap.fitBounds(summaryRouteLine.getBounds(), { padding: [20, 20] });
-}
-
-async function loadSummary() {
-  const user = await ensureAuth();
-  if (!user) return;
-
-  initSummaryMap();
-
+async function loadLatestRun() {
   try {
+    setSummaryStatus("Loading latest run...");
+
     const res = await fetch("/api/runs/latest", {
       method: "GET",
       credentials: "include"
@@ -84,33 +184,95 @@ async function loadSummary() {
     const data = await res.json();
 
     if (!res.ok) {
-      summarySubText.textContent = "No saved runs yet";
-      return;
+      throw new Error(data.message || "Failed to load latest run");
     }
 
-    const run = data.run;
+    const run = sanitizeRun(data.run || {});
 
-    summarySubText.textContent = `Latest run for ${user.userId}`;
-    summaryDate.textContent = new Date(run.createdAt).toLocaleString();
-    summaryDistance.textContent = (run.distanceKm || 0).toFixed(2);
-    summaryTime.textContent = formatTime(run.durationSec || 0);
-    summaryCalories.textContent = Math.round(run.calories || 0);
-    summaryPace.textContent = `${(run.avgPaceMinPerKm || 0).toFixed(2)} min/km`;
-
-    renderRoute(run.routePoints || []);
+    setSummaryValues(run);
+    renderSummaryRoute(run.routePoints);
   } catch (error) {
-    console.error("Summary load error:", error);
-    summarySubText.textContent = "Failed to load summary";
+    console.error("Load latest run error:", error);
+
+    setSummaryValues({
+      distanceKm: 0,
+      durationSec: 0,
+      calories: 0,
+      avgPaceMinPerKm: 0
+    });
+
+    clearSummaryMap();
+
+    if (summaryMap) {
+      summaryMap.setView([20.5937, 78.9629], 5);
+    }
+
+    setSummaryStatus("No latest run found yet. Complete a run first.");
   }
 }
 
-summaryHomeBtn.addEventListener("click", () => (window.location.href = "/home"));
-goHistoryBtn.addEventListener("click", () => (window.location.href = "/history"));
-goRunAgainBtn.addEventListener("click", () => (window.location.href = "/run"));
+async function initSummaryPage() {
+  const user = await ensureAuth();
+  if (!user) return;
 
-summaryNavHome.addEventListener("click", () => (window.location.href = "/home"));
-summaryNavRun.addEventListener("click", () => (window.location.href = "/run"));
-summaryNavHistory.addEventListener("click", () => (window.location.href = "/history"));
-summaryNavProfile.addEventListener("click", () => (window.location.href = "/profile"));
+  if (summaryUserText) {
+    summaryUserText.textContent = `Latest result for ${user.userId}`;
+  }
 
-loadSummary();
+  initSummaryMap();
+  await loadLatestRun();
+}
+
+/* Top/Home button */
+if (summaryBackHomeBtn) {
+  summaryBackHomeBtn.addEventListener("click", () => {
+    window.location.href = "/home";
+  });
+}
+
+/* Action buttons */
+if (summaryRunAgainBtn) {
+  summaryRunAgainBtn.addEventListener("click", () => {
+    window.location.href = "/run";
+  });
+}
+
+if (summaryGoHistoryBtn) {
+  summaryGoHistoryBtn.addEventListener("click", () => {
+    window.location.href = "/history";
+  });
+}
+
+if (summaryGoProfileBtn) {
+  summaryGoProfileBtn.addEventListener("click", () => {
+    window.location.href = "/profile";
+  });
+}
+
+/* Bottom nav */
+if (summaryNavHome) {
+  summaryNavHome.addEventListener("click", () => {
+    window.location.href = "/home";
+  });
+}
+
+if (summaryNavRun) {
+  summaryNavRun.addEventListener("click", () => {
+    window.location.href = "/run";
+  });
+}
+
+if (summaryNavHistory) {
+  summaryNavHistory.addEventListener("click", () => {
+    window.location.href = "/history";
+  });
+}
+
+if (summaryNavProfile) {
+  summaryNavProfile.addEventListener("click", () => {
+    window.location.href = "/profile";
+  });
+}
+
+setSummaryValues();
+initSummaryPage();

@@ -1,11 +1,13 @@
 const jwt = require("jsonwebtoken");
 
-const authMiddleware = (req, res, next) => {
+function authMiddleware(req, res, next) {
   try {
-    const token = req.cookies.makeURunToken;
+    const token = req.cookies?.makeURunToken;
 
     if (!token) {
-      return res.status(401).json({ message: "Not authorized. Please login." });
+      return res.status(401).json({
+        message: "Unauthorized: No token provided"
+      });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -18,8 +20,11 @@ const authMiddleware = (req, res, next) => {
     next();
   } catch (error) {
     console.error("Auth middleware error:", error.message);
-    return res.status(401).json({ message: "Invalid or expired session." });
+
+    return res.status(401).json({
+      message: "Unauthorized: Invalid or expired token"
+    });
   }
-};
+}
 
 module.exports = authMiddleware;

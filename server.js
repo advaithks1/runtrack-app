@@ -7,20 +7,30 @@ const cookieParser = require("cookie-parser");
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 10000;
+
+// Trust proxy (important for Render / reverse proxy / secure cookies)
+app.set("trust proxy", 1);
 
 // Middlewares
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Serve static files from /public
 app.use(express.static(path.join(__dirname, "public")));
 
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ MongoDB Error:", err.message));
+  .then(() => {
+    console.log("✅ MongoDB Connected");
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB Error:", err.message);
+  });
 
-// Routes
+// API Routes
 const authRoutes = require("./routes/auth");
 const runRoutes = require("./routes/run");
 
@@ -52,13 +62,27 @@ app.get("/profile", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "profile.html"));
 });
 
-// Health check route
+// Health check route (Render can use this)
 app.get("/health", (req, res) => {
-  res.status(200).send("Server is running");
+  res.status(200).json({
+    ok: true,
+    message: "Server is running"
+  });
+});
+
+// 404 for unknown API routes only
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    message: "API route not found"
+  });
+});
+
+// Fallback to index/login page for unknown non-API routes
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // Start server
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Make U Run running on port ${PORT}`);
 });

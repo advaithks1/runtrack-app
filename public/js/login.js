@@ -5,41 +5,69 @@ const authMessage = document.getElementById("authMessage");
 const showLoginBtn = document.getElementById("showLoginBtn");
 const showRegisterBtn = document.getElementById("showRegisterBtn");
 
+const loginSection = document.getElementById("loginSection");
+const registerSection = document.getElementById("registerSection");
+
+const loginUserId = document.getElementById("loginUserId");
+const loginPassword = document.getElementById("loginPassword");
+
+const registerUserId = document.getElementById("registerUserId");
+const registerPassword = document.getElementById("registerPassword");
+
 const loginTogglePassword = document.getElementById("loginTogglePassword");
 const registerTogglePassword = document.getElementById("registerTogglePassword");
 
-const loginPassword = document.getElementById("loginPassword");
-const registerPassword = document.getElementById("registerPassword");
+function setAuthMessage(text, isError = false) {
+  if (!authMessage) return;
 
-function showMessage(text, isError = true) {
   authMessage.textContent = text;
-  authMessage.style.color = isError ? "#dc2626" : "#15803d";
+  authMessage.style.color = isError ? "#f87171" : "";
 }
 
-function showLoginTab() {
-  loginForm.classList.remove("hidden");
-  registerForm.classList.add("hidden");
-  showLoginBtn.classList.add("active");
-  showRegisterBtn.classList.remove("active");
-  showMessage("");
+function showLoginSection() {
+  if (loginSection) loginSection.classList.remove("hidden");
+  if (registerSection) registerSection.classList.add("hidden");
+
+  if (showLoginBtn) showLoginBtn.classList.add("active");
+  if (showRegisterBtn) showRegisterBtn.classList.remove("active");
+
+  setAuthMessage("Welcome back! Login to continue.");
 }
 
-function showRegisterTab() {
-  registerForm.classList.remove("hidden");
-  loginForm.classList.add("hidden");
-  showRegisterBtn.classList.add("active");
-  showLoginBtn.classList.remove("active");
-  showMessage("");
+function showRegisterSection() {
+  if (registerSection) registerSection.classList.remove("hidden");
+  if (loginSection) loginSection.classList.add("hidden");
+
+  if (showRegisterBtn) showRegisterBtn.classList.add("active");
+  if (showLoginBtn) showLoginBtn.classList.remove("active");
+
+  setAuthMessage("Create your account to start tracking runs.");
 }
 
-function togglePassword(input, button) {
-  if (input.type === "password") {
-    input.type = "text";
-    button.textContent = "Hide";
-  } else {
-    input.type = "password";
-    button.textContent = "Show";
-  }
+function togglePassword(inputEl, toggleBtn) {
+  if (!inputEl || !toggleBtn) return;
+
+  const isPassword = inputEl.type === "password";
+  inputEl.type = isPassword ? "text" : "password";
+  toggleBtn.textContent = isPassword ? "Hide" : "Show";
+}
+
+function setFormLoading(formType, isLoading) {
+  const submitBtn =
+    formType === "login"
+      ? loginForm?.querySelector('button[type="submit"]')
+      : registerForm?.querySelector('button[type="submit"]');
+
+  if (!submitBtn) return;
+
+  submitBtn.disabled = isLoading;
+  submitBtn.textContent = isLoading
+    ? formType === "login"
+      ? "Logging in..."
+      : "Creating..."
+    : formType === "login"
+      ? "Login"
+      : "Create Account";
 }
 
 async function checkAlreadyLoggedIn() {
@@ -49,49 +77,27 @@ async function checkAlreadyLoggedIn() {
       credentials: "include"
     });
 
-    if (res.status === 401) {
-      console.log("User not logged in yet.");
-      return;
-    }
-
-    if (!res.ok) {
-      console.log("Unable to check login status.");
-      return;
-    }
-
-    const data = await res.json();
-
-    if (data.user) {
+    if (res.ok) {
       window.location.href = "/home";
     }
   } catch (error) {
-    console.log("checkAlreadyLoggedIn error:", error);
+    console.error("Auto-login check error:", error);
   }
 }
 
-showLoginBtn.addEventListener("click", showLoginTab);
-showRegisterBtn.addEventListener("click", showRegisterTab);
+async function handleLogin(event) {
+  event.preventDefault();
 
-loginTogglePassword.addEventListener("click", () => {
-  togglePassword(loginPassword, loginTogglePassword);
-});
-
-registerTogglePassword.addEventListener("click", () => {
-  togglePassword(registerPassword, registerTogglePassword);
-});
-
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const userId = document.getElementById("loginUserId").value.trim();
-  const password = document.getElementById("loginPassword").value;
+  const userId = loginUserId?.value.trim();
+  const password = loginPassword?.value.trim();
 
   if (!userId || !password) {
-    showMessage("Please enter User ID and password.");
+    setAuthMessage("Please enter User ID and Password.", true);
     return;
   }
 
-  showMessage("Logging in...", false);
+  setFormLoading("login", true);
+  setAuthMessage("Logging in...");
 
   try {
     const res = await fetch("/api/auth/login", {
@@ -106,43 +112,42 @@ loginForm.addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      showMessage(data.message || "Login failed.");
-      return;
+      throw new Error(data.message || "Login failed");
     }
 
-    showMessage("Login successful. Redirecting...", false);
-
-    setTimeout(() => {
-      window.location.href = "/home";
-    }, 700);
+    setAuthMessage("Login successful! Redirecting...");
+    window.location.href = "/home";
   } catch (error) {
     console.error("Login error:", error);
-    showMessage("Server error. Please try again.");
+    setAuthMessage(error.message || "Login failed. Please try again.", true);
+  } finally {
+    setFormLoading("login", false);
   }
-});
+}
 
-registerForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+async function handleRegister(event) {
+  event.preventDefault();
 
-  const userId = document.getElementById("registerUserId").value.trim();
-  const password = document.getElementById("registerPassword").value;
+  const userId = registerUserId?.value.trim();
+  const password = registerPassword?.value.trim();
 
   if (!userId || !password) {
-    showMessage("Please enter User ID and password.");
+    setAuthMessage("Please enter User ID and Password.", true);
     return;
   }
 
   if (userId.length < 3) {
-    showMessage("User ID must be at least 3 characters.");
+    setAuthMessage("User ID must be at least 3 characters.", true);
     return;
   }
 
   if (password.length < 6) {
-    showMessage("Password must be at least 6 characters.");
+    setAuthMessage("Password must be at least 6 characters.", true);
     return;
   }
 
-  showMessage("Creating account...", false);
+  setFormLoading("register", true);
+  setAuthMessage("Creating account...");
 
   try {
     const res = await fetch("/api/auth/register", {
@@ -157,32 +162,50 @@ registerForm.addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      showMessage(data.message || "Registration failed.");
-      return;
+      throw new Error(data.message || "Registration failed");
     }
 
-    showMessage("Account created successfully. Redirecting...", false);
-
-    setTimeout(() => {
-      window.location.href = "/home";
-    }, 800);
+    setAuthMessage("Account created successfully! Redirecting...");
+    window.location.href = "/home";
   } catch (error) {
     console.error("Register error:", error);
-    showMessage("Server error. Please try again.");
+    setAuthMessage(error.message || "Registration failed. Please try again.", true);
+  } finally {
+    setFormLoading("register", false);
   }
-});
+}
 
-// Check if user already logged in
-checkAlreadyLoggedIn();
+/* Toggle buttons */
+if (showLoginBtn) {
+  showLoginBtn.addEventListener("click", showLoginSection);
+}
 
-// Register service worker for PWA
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", async () => {
-    try {
-      await navigator.serviceWorker.register("/service-worker.js");
-      console.log("✅ Service worker registered");
-    } catch (error) {
-      console.log("Service worker registration failed:", error);
-    }
+if (showRegisterBtn) {
+  showRegisterBtn.addEventListener("click", showRegisterSection);
+}
+
+/* Password toggle buttons */
+if (loginTogglePassword) {
+  loginTogglePassword.addEventListener("click", () => {
+    togglePassword(loginPassword, loginTogglePassword);
   });
 }
+
+if (registerTogglePassword) {
+  registerTogglePassword.addEventListener("click", () => {
+    togglePassword(registerPassword, registerTogglePassword);
+  });
+}
+
+/* Form submit */
+if (loginForm) {
+  loginForm.addEventListener("submit", handleLogin);
+}
+
+if (registerForm) {
+  registerForm.addEventListener("submit", handleRegister);
+}
+
+/* Init */
+showLoginSection();
+checkAlreadyLoggedIn();

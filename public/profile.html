@@ -2,74 +2,132 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>Make U Run - Profile</title>
   <meta name="theme-color" content="#0f172a" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="home-body">
-
   <div class="mobile-app-shell">
-    <div class="history-screen">
+    <div class="profile-screen">
 
+      <!-- Top Bar -->
       <header class="top-bar">
         <div>
           <h2>Profile</h2>
-          <p id="profileUserText">Your account</p>
+          <p id="profileUserText">Loading profile...</p>
         </div>
-        <button class="small-btn" id="profileLogoutBtn">Logout</button>
+        <button class="small-btn" id="profileBackHomeBtn" type="button">Home</button>
       </header>
 
+      <!-- Status -->
       <section class="hero-card">
-        <h3 id="profileMainName">Runner</h3>
-        <p>Keep showing up. Small runs become big progress.</p>
+        <div class="section-head">
+          <h3>Profile Status</h3>
+          <span id="profileBadge">Runner</span>
+        </div>
+        <p id="profileStatus">Loading profile stats...</p>
       </section>
 
+      <!-- User Info -->
       <section class="stats-card">
         <div class="section-head">
-          <h3>Your Stats</h3>
-          <span>Overview</span>
+          <h3>User Info</h3>
+          <span>Account</span>
         </div>
 
-        <div class="stats-grid stats-grid-2">
+        <div class="single-stat">
+          <span id="profileUserId">-</span>
+        </div>
+      </section>
+
+      <!-- Main Stats -->
+      <section class="stats-card">
+        <div class="section-head">
+          <h3>Overall Stats</h3>
+          <span>All time</span>
+        </div>
+
+        <div class="stats-grid stats-grid-4">
           <div class="stat-box">
-            <div class="stat-value" id="profileRunsValue">0</div>
-            <div class="stat-label">TOTAL RUNS</div>
+            <div class="stat-value" id="profileTotalRuns">0</div>
+            <div class="stat-label">RUNS</div>
           </div>
+
           <div class="stat-box">
-            <div class="stat-value" id="profileDistanceValue">0.00</div>
-            <div class="stat-label">TOTAL KM</div>
+            <div class="stat-value" id="profileTotalDistance">0.00</div>
+            <div class="stat-label">KM</div>
           </div>
+
           <div class="stat-box">
-            <div class="stat-value" id="profileWeeklyValue">0.00</div>
-            <div class="stat-label">WEEKLY KM</div>
+            <div class="stat-value" id="profileTotalCalories">0</div>
+            <div class="stat-label">CAL</div>
           </div>
+
           <div class="stat-box">
-            <div class="stat-value" id="profileStreakValue">0</div>
+            <div class="stat-value" id="profileAvgSpeed">0.00</div>
+            <div class="stat-label">AVG KM/H</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Advanced Stats -->
+      <section class="stats-card">
+        <div class="section-head">
+          <h3>Performance</h3>
+          <span>Highlights</span>
+        </div>
+
+        <div class="stats-grid stats-grid-3-mobile">
+          <div class="stat-box">
+            <div class="stat-value" id="profileLongestRun">0.00</div>
+            <div class="stat-label">LONGEST KM</div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-value" id="profileWeeklyDistance">0.00</div>
+            <div class="stat-label">7 DAY KM</div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-value" id="profileStreakDays">0</div>
             <div class="stat-label">STREAK</div>
           </div>
         </div>
       </section>
 
-      <section class="info-card">
-        <div class="section-head">
-          <h3>Account</h3>
-          <span>Secure</span>
+      <!-- Actions -->
+      <section class="action-stack">
+        <button class="primary-btn" id="profileGoRunBtn" type="button">Start Run</button>
+
+        <div class="action-row">
+          <button class="secondary-btn half-btn" id="profileGoHistoryBtn" type="button">
+            View History
+          </button>
+          <button class="run-btn half-btn" id="profileLogoutBtn" type="button">
+            Logout
+          </button>
         </div>
-        <p id="profileAccountText">Logged in securely with session cookie.</p>
       </section>
 
-      <section class="action-row">
-        <button class="secondary-btn half-btn" id="profileGoHomeBtn">Home</button>
-        <button class="run-btn half-btn" id="profileGoRunBtn">Run Now</button>
+      <!-- Info -->
+      <section class="info-card">
+        <h3>Keep Going</h3>
+        <p id="profileMotivationText">
+          Your running profile updates automatically as you save more runs. Build your streak and improve every week.
+        </p>
       </section>
 
+      <!-- Bottom Nav -->
       <nav class="bottom-nav">
-        <button class="nav-item" id="profileNavHome">Home</button>
-        <button class="nav-item" id="profileNavRun">Run</button>
-        <button class="nav-item" id="profileNavHistory">History</button>
-        <button class="nav-item active" id="profileNavProfile">Profile</button>
+        <button class="nav-item" id="profileNavHome" type="button">Home</button>
+        <button class="nav-item" id="profileNavRun" type="button">Run</button>
+        <button class="nav-item" id="profileNavHistory" type="button">History</button>
+        <button class="nav-item active" id="profileNavProfile" type="button">Profile</button>
       </nav>
 
     </div>

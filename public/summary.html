@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>Make U Run - Run Summary</title>
   <meta name="theme-color" content="#0f172a" />
   <link rel="manifest" href="manifest.json" />
@@ -16,73 +19,98 @@
   />
 </head>
 <body class="home-body">
-
   <div class="mobile-app-shell">
-    <div class="history-screen">
+    <div class="summary-screen">
 
+      <!-- Top Bar -->
       <header class="top-bar">
         <div>
           <h2>Run Summary</h2>
-          <p id="summarySubText">Your latest run</p>
+          <p id="summaryUserText">Latest result</p>
         </div>
-        <button class="small-btn" id="summaryHomeBtn">Home</button>
+        <button class="small-btn" id="summaryBackHomeBtn" type="button">Home</button>
       </header>
 
+      <!-- Status -->
       <section class="hero-card">
-        <h3>Nice work 🎉</h3>
-        <p>Your run has been saved successfully.</p>
+        <h3>Latest Run Status</h3>
+        <p id="summaryStatus">Loading latest run...</p>
       </section>
 
+      <!-- Summary Map -->
       <section class="map-card">
         <div class="section-head">
-          <h3>Route Replay</h3>
-          <span>Latest</span>
+          <h3>Route Overview</h3>
+          <span>Latest run</span>
         </div>
         <div id="summaryMap"></div>
       </section>
 
+      <!-- Summary Stats -->
       <section class="stats-card">
         <div class="section-head">
-          <h3>Summary Stats</h3>
-          <span id="summaryDate">Today</span>
+          <h3>Run Stats</h3>
+          <span>Saved result</span>
         </div>
 
         <div class="stats-grid">
           <div class="stat-box">
-            <div class="stat-value" id="summaryDistance">0.00</div>
+            <div class="stat-value" id="latestDistance">0.00</div>
             <div class="stat-label">KM</div>
           </div>
+
           <div class="stat-box">
-            <div class="stat-value" id="summaryTime">00:00</div>
+            <div class="stat-value" id="latestTime">00:00</div>
             <div class="stat-label">TIME</div>
           </div>
+
           <div class="stat-box">
-            <div class="stat-value" id="summaryCalories">0</div>
+            <div class="stat-value" id="latestCalories">0</div>
             <div class="stat-label">CAL</div>
           </div>
         </div>
       </section>
 
+      <!-- Pace -->
       <section class="stats-card">
         <div class="section-head">
           <h3>Average Pace</h3>
           <span>Per KM</span>
         </div>
+
         <div class="single-stat">
-          <span id="summaryPace">0.00 min/km</span>
+          <span id="latestPace">0.00 min/km</span>
         </div>
       </section>
 
-      <section class="action-row">
-        <button class="secondary-btn half-btn" id="goHistoryBtn">History</button>
-        <button class="run-btn half-btn" id="goRunAgainBtn">Run Again</button>
+      <!-- Actions -->
+      <section class="action-stack">
+        <button class="primary-btn" id="summaryRunAgainBtn" type="button">Run Again</button>
+
+        <div class="action-row">
+          <button class="secondary-btn half-btn" id="summaryGoHistoryBtn" type="button">
+            View History
+          </button>
+          <button class="run-btn half-btn" id="summaryGoProfileBtn" type="button">
+            Profile
+          </button>
+        </div>
       </section>
 
+      <!-- Tip -->
+      <section class="info-card">
+        <h3>Great Work</h3>
+        <p>
+          Your latest run is saved successfully. You can start another run now or review your full running history.
+        </p>
+      </section>
+
+      <!-- Bottom Nav -->
       <nav class="bottom-nav">
-        <button class="nav-item" id="summaryNavHome">Home</button>
-        <button class="nav-item" id="summaryNavRun">Run</button>
-        <button class="nav-item" id="summaryNavHistory">History</button>
-        <button class="nav-item" id="summaryNavProfile">Profile</button>
+        <button class="nav-item" id="summaryNavHome" type="button">Home</button>
+        <button class="nav-item active" id="summaryNavRun" type="button">Run</button>
+        <button class="nav-item" id="summaryNavHistory" type="button">History</button>
+        <button class="nav-item" id="summaryNavProfile" type="button">Profile</button>
       </nav>
 
     </div>

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>Make U Run - Live Run</title>
   <meta name="theme-color" content="#0f172a" />
   <link rel="manifest" href="manifest.json" />
@@ -16,46 +19,62 @@
   />
 </head>
 <body class="home-body">
-
   <div class="mobile-app-shell">
     <div class="run-screen">
 
+      <!-- Top Bar -->
       <header class="top-bar">
         <div>
           <h2>Live Run</h2>
           <p id="runUserText">Tracking your movement</p>
         </div>
-        <button class="small-btn" id="backHomeBtn">Home</button>
+        <button class="small-btn" id="backHomeBtn" type="button">Home</button>
       </header>
 
+      <!-- GPS Status -->
       <section class="hero-card">
-        <h3>GPS Status</h3>
+        <div class="section-head">
+          <h3>GPS Status</h3>
+          <span>Live</span>
+        </div>
         <p id="gpsStatus">Waiting to start...</p>
       </section>
 
+      <!-- Live Map -->
       <section class="map-card">
         <div class="section-head">
           <h3>Live Route</h3>
-          <span>Map</span>
+          <div class="map-actions">
+            <span>Real time</span>
+            <button class="small-btn" id="recenterMapBtn" type="button">Follow Me</button>
+          </div>
         </div>
         <div id="runMap"></div>
       </section>
 
+      <!-- Live Stats -->
       <section class="stats-card">
         <div class="section-head">
           <h3>Live Stats</h3>
           <span>Real time</span>
         </div>
 
-        <div class="stats-grid">
+        <div class="stats-grid stats-grid-4">
           <div class="stat-box">
             <div class="stat-value" id="distanceValue">0.00</div>
             <div class="stat-label">KM</div>
           </div>
+
           <div class="stat-box">
             <div class="stat-value" id="timerValue">00:00</div>
             <div class="stat-label">TIME</div>
           </div>
+
+          <div class="stat-box">
+            <div class="stat-value" id="speedValue">0.00</div>
+            <div class="stat-label">KM/H</div>
+          </div>
+
           <div class="stat-box">
             <div class="stat-value" id="caloriesValue">0</div>
             <div class="stat-label">CAL</div>
@@ -63,35 +82,59 @@
         </div>
       </section>
 
+      <!-- Pace -->
       <section class="stats-card">
         <div class="section-head">
           <h3>Average Pace</h3>
           <span>Per KM</span>
         </div>
+
         <div class="single-stat">
-          <span id="paceValue">0.00 min/km</span>
+          <span id="paceValue">--</span>
         </div>
       </section>
 
+      <!-- Controls -->
       <section class="action-stack">
-        <button class="primary-btn" id="startRunBtn">Start Run</button>
+        <button class="primary-btn" id="startRunBtn" type="button">Start Run</button>
 
         <div class="action-row">
-          <button class="secondary-btn half-btn" id="pauseResumeBtn" disabled>Pause</button>
-          <button class="run-btn half-btn" id="stopRunBtn" disabled>Finish & Save</button>
+          <button
+            class="secondary-btn half-btn"
+            id="pauseResumeBtn"
+            type="button"
+            disabled
+          >
+            Pause
+          </button>
+
+          <button
+            class="run-btn half-btn"
+            id="stopRunBtn"
+            type="button"
+            disabled
+          >
+            Finish &amp; Save
+          </button>
         </div>
       </section>
 
+      <!-- Info -->
       <section class="info-card">
         <h3>Tip</h3>
-        <p>Use on mobile, allow location permission, and test outside for best GPS accuracy.</p>
+        <p>
+          Best on mobile. Allow location permission and wait for a stable GPS lock before moving.
+          If you drag the map, tap <strong>Follow Me</strong> to center back on your live position.
+          If the page refreshes accidentally, your live run can still be restored.
+        </p>
       </section>
 
+      <!-- Bottom Nav -->
       <nav class="bottom-nav">
-        <button class="nav-item" id="runNavHome">Home</button>
-        <button class="nav-item active" id="runNavRun">Run</button>
-        <button class="nav-item" id="runNavHistory">History</button>
-        <button class="nav-item" id="runNavProfile">Profile</button>
+        <button class="nav-item" id="runNavHome" type="button">Home</button>
+        <button class="nav-item active" id="runNavRun" type="button">Run</button>
+        <button class="nav-item" id="runNavHistory" type="button">History</button>
+        <button class="nav-item" id="runNavProfile" type="button">Profile</button>
       </nav>
 
     </div>

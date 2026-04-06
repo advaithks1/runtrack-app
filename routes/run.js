@@ -4,56 +4,126 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+function calculateCaloriesFromDistance(distanceKm) {
+  // Simple consistent backend estimate
+  return Math.round(Math.max(0, Number(distanceKm) || 0) * 62);
+}
+
+function calculateAvgSpeedKmh(distanceKm, durationSec) {
+  const safeDistance = Math.max(0, Number(distanceKm) || 0);
+  const safeDuration = Math.max(0, Number(durationSec) || 0);
+
+  if (safeDistance <= 0 || safeDuration <= 0) return 0;
+
+  const hours = safeDuration / 3600;
+  return Number((safeDistance / hours).toFixed(2));
+}
+
 // Save a run
 router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { distanceKm, durationSec, calories, avgPaceMinPerKm, routePoints } = req.body;
+    const {
+      distanceKm,
+      durationSec,
+      calories,
+      avgPaceMinPerKm,
+      routePoints
+    } = req.body;
+
+    const safeDistanceKm = Math.max(0, Number(distanceKm) || 0);
+    const safeDurationSec = Math.max(0, Number(durationSec) || 0);
+    const safeAvgPace = Math.max(0, Number(avgPaceMinPerKm) || 0);
+
+    // Recalculate calories safely if frontend sends bad value
+    const incomingCalories = Math.max(0, Number(calories) || 0);
+    const safeCalories =
+      incomingCalories > 0 ? incomingCalories : calculateCaloriesFromDistance(safeDistanceKm);
+
+    const safeRoutePoints = Array.isArray(routePoints)
+      ? routePoints
+          .map((point) => ({
+            lat: Number(point?.lat),
+            lng: Number(point?.lng),
+            timestamp: Number(point?.timestamp) || Date.now()
+          }))
+          .filter(
+            (point) =>
+              Number.isFinite(point.lat) &&
+              Number.isFinite(point.lng)
+          )
+      : [];
 
     const newRun = new Run({
       userId: req.user.userId,
-      distanceKm: Number(distanceKm) || 0,
-      durationSec: Number(durationSec) || 0,
-      calories: Number(calories) || 0,
-      avgPaceMinPerKm: Number(avgPaceMinPerKm) || 0,
-      routePoints: Array.isArray(routePoints) ? routePoints : []
+      distanceKm: Number(safeDistanceKm.toFixed(3)),
+      durationSec: Math.floor(safeDurationSec),
+      calories: Math.round(safeCalories),
+      avgPaceMinPerKm: Number(safeAvgPace.toFixed(2)),
+      routePoints: safeRoutePoints
     });
 
     await newRun.save();
 
     res.status(201).json({
       message: "Run saved successfully",
-      run: newRun
+      run: {
+        ...newRun.toObject(),
+        avgSpeedKmh: calculateAvgSpeedKmh(newRun.distanceKm, newRun.durationSec)
+      }
     });
   } catch (error) {
     console.error("Save run error:", error.message);
-    res.status(500).json({ message: "Server error while saving run" });
+    res.status(500).json({
+      message: "Server error while saving run"
+    });
   }
 });
 
 // Get all my runs
 router.get("/my", authMiddleware, async (req, res) => {
   try {
-    const runs = await Run.find({ userId: req.user.userId }).sort({ createdAt: -1 });
-    res.status(200).json({ runs });
+    const runs = await Run.find({ userId: req.user.userId }).sort({
+      createdAt: -1
+    });
+
+    const formattedRuns = runs.map((run) => ({
+      ...run.toObject(),
+      avgSpeedKmh: calculateAvgSpeedKmh(run.distanceKm, run.durationSec)
+    }));
+
+    res.status(200).json({ runs: formattedRuns });
   } catch (error) {
     console.error("Fetch runs error:", error.message);
-    res.status(500).json({ message: "Server error while fetching runs" });
+    res.status(500).json({
+      message: "Server error while fetching runs"
+    });
   }
 });
 
 // Get latest run
 router.get("/latest", authMiddleware, async (req, res) => {
   try {
-    const latestRun = await Run.findOne({ userId: req.user.userId }).sort({ createdAt: -1 });
+    const latestRun = await Run.findOne({ userId: req.user.userId }).sort({
+      createdAt: -1
+    });
 
     if (!latestRun) {
-      return res.status(404).json({ message: "No runs found" });
+      return res.status(404).json({
+        message: "No runs found"
+      });
     }
 
-    res.status(200).json({ run: latestRun });
+    res.status(200).json({
+      run: {
+        ...latestRun.toObject(),
+        avgSpeedKmh: calculateAvgSpeedKmh(latestRun.distanceKm, latestRun.durationSec)
+      }
+    });
   } catch (error) {
     console.error("Latest run error:", error.message);
-    res.status(500).json({ message: "Server error while fetching latest run" });
+    res.status(500).json({
+      message: "Server error while fetching latest run"
+    });
   }
 });
 
@@ -63,48 +133,74 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     const run = await Run.findById(req.params.id);
 
     if (!run) {
-      return res.status(404).json({ message: "Run not found" });
+      return res.status(404).json({
+        message: "Run not found"
+      });
     }
 
-    if (run.userId !== req.user.userId) {
-      return res.status(403).json({ message: "Not allowed" });
+    if (String(run.userId) !== String(req.user.userId)) {
+      return res.status(403).json({
+        message: "Not allowed"
+      });
     }
 
     await Run.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({ message: "Run deleted successfully" });
+    res.status(200).json({
+      message: "Run deleted successfully"
+    });
   } catch (error) {
     console.error("Delete run error:", error.message);
-    res.status(500).json({ message: "Server error while deleting run" });
+    res.status(500).json({
+      message: "Server error while deleting run"
+    });
   }
 });
 
 // Dashboard stats
 router.get("/stats/overview", authMiddleware, async (req, res) => {
   try {
-    const runs = await Run.find({ userId: req.user.userId }).sort({ createdAt: -1 });
+    const runs = await Run.find({ userId: req.user.userId }).sort({
+      createdAt: -1
+    });
 
     const totalRuns = runs.length;
-    const totalDistanceKm = runs.reduce((sum, run) => sum + (run.distanceKm || 0), 0);
-    const totalCalories = runs.reduce((sum, run) => sum + (run.calories || 0), 0);
-    const totalDurationSec = runs.reduce((sum, run) => sum + (run.durationSec || 0), 0);
-    const longestRunKm = runs.reduce((max, run) => Math.max(max, run.distanceKm || 0), 0);
+    const totalDistanceKm = runs.reduce(
+      (sum, run) => sum + (Number(run.distanceKm) || 0),
+      0
+    );
+    const totalCalories = runs.reduce(
+      (sum, run) => sum + (Number(run.calories) || 0),
+      0
+    );
+    const totalDurationSec = runs.reduce(
+      (sum, run) => sum + (Number(run.durationSec) || 0),
+      0
+    );
+    const longestRunKm = runs.reduce(
+      (max, run) => Math.max(max, Number(run.distanceKm) || 0),
+      0
+    );
 
     const weeklyDistanceKm = calculateWeeklyDistance(runs);
     const streakDays = calculateStreak(runs);
+    const overallAvgSpeedKmh = calculateAvgSpeedKmh(totalDistanceKm, totalDurationSec);
 
     res.status(200).json({
       totalRuns,
-      totalDistanceKm,
+      totalDistanceKm: Number(totalDistanceKm.toFixed(2)),
       totalCalories,
       totalDurationSec,
-      longestRunKm,
-      weeklyDistanceKm,
-      streakDays
+      longestRunKm: Number(longestRunKm.toFixed(2)),
+      weeklyDistanceKm: Number(weeklyDistanceKm.toFixed(2)),
+      streakDays,
+      overallAvgSpeedKmh
     });
   } catch (error) {
     console.error("Overview stats error:", error.message);
-    res.status(500).json({ message: "Server error while fetching stats" });
+    res.status(500).json({
+      message: "Server error while fetching stats"
+    });
   }
 });
 
@@ -116,7 +212,7 @@ function calculateWeeklyDistance(runs) {
 
   return runs.reduce((sum, run) => {
     const runDate = new Date(run.createdAt);
-    return runDate >= sevenDaysAgo ? sum + (run.distanceKm || 0) : sum;
+    return runDate >= sevenDaysAgo ? sum + (Number(run.distanceKm) || 0) : sum;
   }, 0);
 }
 
@@ -142,7 +238,7 @@ function calculateStreak(runs) {
     if (uniqueDates.has(key)) {
       streak++;
     } else {
-      // allow today to be empty if no run today but ran yesterday
+      // Allow no run today, but continue if yesterday exists
       if (i === 0) {
         continue;
       }

@@ -2,63 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>Make U Run - History</title>
   <meta name="theme-color" content="#0f172a" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="home-body">
-
   <div class="mobile-app-shell">
     <div class="history-screen">
 
+      <!-- Top Bar -->
       <header class="top-bar">
         <div>
           <h2>Run History</h2>
           <p id="historyUserText">Your saved runs</p>
         </div>
-        <button class="small-btn" id="historyHomeBtn">Home</button>
+        <button class="small-btn" id="historyBackHomeBtn" type="button">Home</button>
       </header>
 
-      <section class="stats-card">
-        <div class="section-head">
-          <h3>Summary</h3>
-          <span>All time</span>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-box">
-            <div class="stat-value" id="totalRuns">0</div>
-            <div class="stat-label">RUNS</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-value" id="totalKm">0.00</div>
-            <div class="stat-label">KM</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-value" id="totalCal">0</div>
-            <div class="stat-label">CAL</div>
-          </div>
-        </div>
+      <!-- Status -->
+      <section class="hero-card">
+        <h3>History Status</h3>
+        <p id="historyStatus">Loading your runs...</p>
       </section>
 
+      <!-- History List -->
       <section class="history-list-card">
         <div class="section-head">
-          <h3>Recent Runs</h3>
-          <span id="historyCount">0 items</span>
+          <h3>Saved Runs</h3>
+          <span>Recent first</span>
         </div>
 
-        <div id="historyList" class="history-list">
-          <p class="empty-text">No runs saved yet.</p>
+        <div class="history-list" id="historyList">
+          <p class="empty-text">Loading your runs...</p>
         </div>
       </section>
 
+      <!-- Info -->
+      <section class="info-card">
+        <h3>Tip</h3>
+        <p>
+          You can review all saved runs here and delete any run you no longer want to keep.
+        </p>
+      </section>
+
+      <!-- Bottom Nav -->
       <nav class="bottom-nav">
-        <button class="nav-item" id="historyNavHome">Home</button>
-        <button class="nav-item" id="historyNavRun">Run</button>
-        <button class="nav-item active" id="historyNavHistory">History</button>
-        <button class="nav-item" id="historyNavProfile">Profile</button>
+        <button class="nav-item" id="historyNavHome" type="button">Home</button>
+        <button class="nav-item" id="historyNavRun" type="button">Run</button>
+        <button class="nav-item active" id="historyNavHistory" type="button">History</button>
+        <button class="nav-item" id="historyNavProfile" type="button">Profile</button>
       </nav>
 
     </div>

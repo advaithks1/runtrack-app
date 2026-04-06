@@ -1,42 +1,107 @@
 const homeUserText = document.getElementById("homeUserText");
-const totalRunsValue = document.getElementById("totalRunsValue");
-const totalDistanceValue = document.getElementById("totalDistanceValue");
-const totalCaloriesValue = document.getElementById("totalCaloriesValue");
-const weeklyDistanceValue = document.getElementById("weeklyDistanceValue");
-const longestRunValue = document.getElementById("longestRunValue");
-const totalTimeValue = document.getElementById("totalTimeValue");
-const streakValue = document.getElementById("streakValue");
-const motivationText = document.getElementById("motivationText");
-
 const homeLogoutBtn = document.getElementById("homeLogoutBtn");
 
-const goRunBtn = document.getElementById("goRunBtn");
-const goHistoryBtn = document.getElementById("goHistoryBtn");
-const goSummaryBtn = document.getElementById("goSummaryBtn");
-const goProfileBtn = document.getElementById("goProfileBtn");
+const homeGoalText = document.getElementById("homeGoalText");
+const homeTotalRuns = document.getElementById("homeTotalRuns");
+const homeTotalDistance = document.getElementById("homeTotalDistance");
+const homeWeeklyDistance = document.getElementById("homeWeeklyDistance");
+const homeAvgSpeed = document.getElementById("homeAvgSpeed");
+const homeTotalCalories = document.getElementById("homeTotalCalories");
+const homeLongestRun = document.getElementById("homeLongestRun");
+const homeStreakDays = document.getElementById("homeStreakDays");
+const homeStreakBadge = document.getElementById("homeStreakBadge");
+const homeMotivationText = document.getElementById("homeMotivationText");
+
+const homeStartRunBtn = document.getElementById("homeStartRunBtn");
+const homeHistoryBtn = document.getElementById("homeHistoryBtn");
+const homeProfileBtn = document.getElementById("homeProfileBtn");
 
 const homeNavHome = document.getElementById("homeNavHome");
 const homeNavRun = document.getElementById("homeNavRun");
 const homeNavHistory = document.getElementById("homeNavHistory");
 const homeNavProfile = document.getElementById("homeNavProfile");
 
-function formatDuration(seconds) {
-  const total = Number(seconds) || 0;
-  const hrs = Math.floor(total / 3600);
-  const mins = Math.floor((total % 3600) / 60);
+const RUN_STATE_KEY = "makeURunLiveState";
 
-  if (hrs > 0) {
-    return `${hrs}h ${mins}m`;
+function hasActiveLiveRun() {
+  try {
+    const raw = localStorage.getItem(RUN_STATE_KEY);
+    if (!raw) return false;
+
+    const data = JSON.parse(raw);
+    return !!data.isRunning;
+  } catch (error) {
+    console.error("Live run state read error:", error);
+    return false;
   }
-  return `${mins}m`;
 }
 
-function getMotivation(stats) {
-  if (stats.totalRuns === 0) return "Start your first run today and build your streak.";
-  if (stats.streakDays >= 7) return `🔥 Amazing! You are on a ${stats.streakDays}-day streak.`;
-  if (stats.weeklyDistanceKm >= 20) return "Strong week! Keep pushing your pace and consistency.";
-  if (stats.totalRuns >= 10) return "You’re building real momentum. Keep showing up.";
-  return "One more run today can make your progress even stronger.";
+function setDefaultHomeStats() {
+  if (homeTotalRuns) homeTotalRuns.textContent = "0";
+  if (homeTotalDistance) homeTotalDistance.textContent = "0.00";
+  if (homeWeeklyDistance) homeWeeklyDistance.textContent = "0.00";
+  if (homeAvgSpeed) homeAvgSpeed.textContent = "0.00";
+  if (homeTotalCalories) homeTotalCalories.textContent = "0";
+  if (homeLongestRun) homeLongestRun.textContent = "0.00";
+  if (homeStreakDays) homeStreakDays.textContent = "0";
+  if (homeStreakBadge) homeStreakBadge.textContent = "0 day streak";
+}
+
+function safeNumber(value, fallback = 0) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+}
+
+function updateStartButtonLabel() {
+  if (!homeStartRunBtn) return;
+
+  if (hasActiveLiveRun()) {
+    homeStartRunBtn.textContent = "Resume Live Run";
+  } else {
+    homeStartRunBtn.textContent = "Start Live Run";
+  }
+}
+
+function setGoalAndMotivation(stats = {}) {
+  const weeklyKm = safeNumber(stats.weeklyDistanceKm, 0);
+  const totalRuns = safeNumber(stats.totalRuns, 0);
+  const streakDays = safeNumber(stats.streakDays, 0);
+  const longestRunKm = safeNumber(stats.longestRunKm, 0);
+  const avgSpeedKmh = safeNumber(stats.overallAvgSpeedKmh, 0);
+
+  if (homeGoalText) {
+    if (totalRuns === 0) {
+      homeGoalText.textContent = "Start your first run today. One run is all it takes to begin.";
+    } else if (weeklyKm >= 25) {
+      homeGoalText.textContent = "Elite consistency this week. Focus on recovery and keep the momentum strong.";
+    } else if (weeklyKm >= 15) {
+      homeGoalText.textContent = "Great week so far. One more solid run can push you to the next level.";
+    } else if (streakDays >= 5) {
+      homeGoalText.textContent = "Your streak is building well. Protect it with one focused run today.";
+    } else if (longestRunKm >= 5) {
+      homeGoalText.textContent = "You already proved you can go far. Build consistency and stack more quality runs.";
+    } else {
+      homeGoalText.textContent = "One more run today can improve your weekly progress. Stay consistent.";
+    }
+  }
+
+  if (homeMotivationText) {
+    if (streakDays >= 10) {
+      homeMotivationText.textContent = `🔥 ${streakDays}-day streak! That is serious discipline. Keep showing up.`;
+    } else if (streakDays >= 5) {
+      homeMotivationText.textContent = `Strong work — ${streakDays}-day streak. Consistency is becoming your identity.`;
+    } else if (avgSpeedKmh >= 8) {
+      homeMotivationText.textContent = "Nice pace overall. Keep training smart and your endurance will rise fast.";
+    } else if (totalRuns > 0) {
+      homeMotivationText.textContent = "Every run counts. Even a short run builds discipline and momentum.";
+    } else {
+      homeMotivationText.textContent = "Your first run creates the habit. Start small and stay regular.";
+    }
+  }
+
+  if (homeStreakBadge) {
+    homeStreakBadge.textContent = `${streakDays} day${streakDays === 1 ? "" : "s"} streak`;
+  }
 }
 
 async function ensureAuth() {
@@ -54,68 +119,159 @@ async function ensureAuth() {
     const data = await res.json();
     return data.user;
   } catch (error) {
-    console.error("Auth check error:", error);
+    console.error("Home auth check error:", error);
     window.location.href = "/";
     return null;
   }
 }
 
-async function loadHome() {
-  const user = await ensureAuth();
-  if (!user) return;
-
-  homeUserText.textContent = `Welcome back, ${user.userId}`;
-
+async function loadHomeStats() {
   try {
     const res = await fetch("/api/runs/stats/overview", {
       method: "GET",
       credentials: "include"
     });
 
+    const data = await res.json();
+
     if (!res.ok) {
-      throw new Error("Failed to fetch stats");
+      throw new Error(data.message || "Failed to load home stats");
     }
 
-    const stats = await res.json();
+    const totalRuns = Math.max(0, Math.floor(safeNumber(data.totalRuns, 0)));
+    const totalDistanceKm = Math.max(0, safeNumber(data.totalDistanceKm, 0));
+    const weeklyDistanceKm = Math.max(0, safeNumber(data.weeklyDistanceKm, 0));
+    const overallAvgSpeedKmh = Math.max(0, safeNumber(data.overallAvgSpeedKmh, 0));
+    const totalCalories = Math.max(0, Math.round(safeNumber(data.totalCalories, 0)));
+    const longestRunKm = Math.max(0, safeNumber(data.longestRunKm, 0));
+    const streakDays = Math.max(0, Math.floor(safeNumber(data.streakDays, 0)));
 
-    totalRunsValue.textContent = stats.totalRuns || 0;
-    totalDistanceValue.textContent = (stats.totalDistanceKm || 0).toFixed(2);
-    totalCaloriesValue.textContent = Math.round(stats.totalCalories || 0);
-    weeklyDistanceValue.textContent = (stats.weeklyDistanceKm || 0).toFixed(2);
-    longestRunValue.textContent = (stats.longestRunKm || 0).toFixed(2);
-    totalTimeValue.textContent = formatDuration(stats.totalDurationSec || 0);
-    streakValue.textContent = stats.streakDays || 0;
+    if (homeTotalRuns) {
+      homeTotalRuns.textContent = String(totalRuns);
+    }
 
-    motivationText.textContent = getMotivation(stats);
+    if (homeTotalDistance) {
+      homeTotalDistance.textContent = totalDistanceKm.toFixed(2);
+    }
+
+    if (homeWeeklyDistance) {
+      homeWeeklyDistance.textContent = weeklyDistanceKm.toFixed(2);
+    }
+
+    if (homeAvgSpeed) {
+      homeAvgSpeed.textContent = overallAvgSpeedKmh.toFixed(2);
+    }
+
+    if (homeTotalCalories) {
+      homeTotalCalories.textContent = String(totalCalories);
+    }
+
+    if (homeLongestRun) {
+      homeLongestRun.textContent = longestRunKm.toFixed(2);
+    }
+
+    if (homeStreakDays) {
+      homeStreakDays.textContent = String(streakDays);
+    }
+
+    setGoalAndMotivation({
+      totalRuns,
+      weeklyDistanceKm,
+      streakDays,
+      longestRunKm,
+      overallAvgSpeedKmh
+    });
   } catch (error) {
     console.error("Load home stats error:", error);
-    motivationText.textContent = "Could not load stats right now. Try again after your next refresh.";
+    setDefaultHomeStats();
+    setGoalAndMotivation();
   }
 }
 
-async function logout() {
+async function logoutUser() {
+  const confirmLogout = confirm("Logout now?");
+  if (!confirmLogout) return;
+
   try {
-    await fetch("/api/auth/logout", {
+    const res = await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "include"
     });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Logout failed");
+    }
+
+    localStorage.removeItem(RUN_STATE_KEY);
+    window.location.href = "/";
   } catch (error) {
     console.error("Logout error:", error);
-  } finally {
-    window.location.href = "/";
+    alert("Could not logout right now. Please try again.");
   }
 }
 
-homeLogoutBtn.addEventListener("click", logout);
+async function initHomePage() {
+  const user = await ensureAuth();
+  if (!user) return;
 
-goRunBtn.addEventListener("click", () => (window.location.href = "/run"));
-goHistoryBtn.addEventListener("click", () => (window.location.href = "/history"));
-goSummaryBtn.addEventListener("click", () => (window.location.href = "/summary"));
-goProfileBtn.addEventListener("click", () => (window.location.href = "/profile"));
+  if (homeUserText) {
+    homeUserText.textContent = `Welcome back, ${user.userId}`;
+  }
 
-homeNavHome.addEventListener("click", () => (window.location.href = "/home"));
-homeNavRun.addEventListener("click", () => (window.location.href = "/run"));
-homeNavHistory.addEventListener("click", () => (window.location.href = "/history"));
-homeNavProfile.addEventListener("click", () => (window.location.href = "/profile"));
+  setDefaultHomeStats();
+  updateStartButtonLabel();
+  await loadHomeStats();
+}
 
-loadHome();
+/* Top button */
+if (homeLogoutBtn) {
+  homeLogoutBtn.addEventListener("click", logoutUser);
+}
+
+/* Main action buttons */
+if (homeStartRunBtn) {
+  homeStartRunBtn.addEventListener("click", () => {
+    window.location.href = "/run";
+  });
+}
+
+if (homeHistoryBtn) {
+  homeHistoryBtn.addEventListener("click", () => {
+    window.location.href = "/history";
+  });
+}
+
+if (homeProfileBtn) {
+  homeProfileBtn.addEventListener("click", () => {
+    window.location.href = "/profile";
+  });
+}
+
+/* Bottom nav */
+if (homeNavHome) {
+  homeNavHome.addEventListener("click", () => {
+    window.location.href = "/home";
+  });
+}
+
+if (homeNavRun) {
+  homeNavRun.addEventListener("click", () => {
+    window.location.href = "/run";
+  });
+}
+
+if (homeNavHistory) {
+  homeNavHistory.addEventListener("click", () => {
+    window.location.href = "/history";
+  });
+}
+
+if (homeNavProfile) {
+  homeNavProfile.addEventListener("click", () => {
+    window.location.href = "/profile";
+  });
+}
+
+initHomePage();
