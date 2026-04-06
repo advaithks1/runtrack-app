@@ -15,12 +15,14 @@ const summaryNavRun = document.getElementById("summaryNavRun");
 const summaryNavHistory = document.getElementById("summaryNavHistory");
 const summaryNavProfile = document.getElementById("summaryNavProfile");
 
+const RUN_STATE_KEY = "makeURunLiveState";
+
 let summaryMap = null;
 let summaryRouteLine = null;
 let summaryMarker = null;
 
 function formatTime(totalSeconds) {
-  const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
+  const safeSeconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));
 
   const hrs = Math.floor(safeSeconds / 3600);
   const mins = Math.floor((safeSeconds % 3600) / 60);
@@ -48,7 +50,7 @@ function sanitizeRun(run = {}) {
     distanceKm: Math.max(0, Number(run.distanceKm) || 0),
     durationSec: Math.max(0, Math.floor(Number(run.durationSec) || 0)),
     calories: Math.max(0, Math.round(Number(run.calories) || 0)),
-    avgPaceMinPerKm: Number(run.avgPaceMinPerKm) || 0,
+    avgPaceMinPerKm: Math.max(0, Number(run.avgPaceMinPerKm) || 0),
     routePoints: Array.isArray(run.routePoints) ? run.routePoints : []
   };
 }
@@ -65,7 +67,7 @@ function setSummaryValues(run = {}) {
   }
 
   if (latestCalories) {
-    latestCalories.textContent = safeRun.calories;
+    latestCalories.textContent = String(safeRun.calories);
   }
 
   if (latestPace) {
@@ -79,10 +81,13 @@ function setSummaryStatus(text) {
   }
 }
 
+function clearLiveRunState() {
+  localStorage.removeItem(RUN_STATE_KEY);
+}
+
 function initSummaryMap() {
   const mapEl = document.getElementById("summaryMap");
   if (!mapEl || typeof L === "undefined") return;
-
   if (summaryMap) return;
 
   summaryMap = L.map("summaryMap").setView([20.5937, 78.9629], 5);
@@ -190,7 +195,6 @@ async function loadLatestRun() {
     }
 
     const run = sanitizeRun(data.run || {});
-
     setSummaryValues(run);
     renderSummaryRoute(run.routePoints);
   } catch (error) {
@@ -200,7 +204,8 @@ async function loadLatestRun() {
       distanceKm: 0,
       durationSec: 0,
       calories: 0,
-      avgPaceMinPerKm: 0
+      avgPaceMinPerKm: 0,
+      routePoints: []
     });
 
     clearSummaryMap();
@@ -225,16 +230,15 @@ async function initSummaryPage() {
   await loadLatestRun();
 }
 
-/* Top/Home button */
 if (summaryBackHomeBtn) {
   summaryBackHomeBtn.addEventListener("click", () => {
     window.location.href = "/home.html";
   });
 }
 
-/* Action buttons */
 if (summaryRunAgainBtn) {
   summaryRunAgainBtn.addEventListener("click", () => {
+    clearLiveRunState();
     window.location.href = "/run.html";
   });
 }
@@ -251,7 +255,6 @@ if (summaryGoProfileBtn) {
   });
 }
 
-/* Bottom nav */
 if (summaryNavHome) {
   summaryNavHome.addEventListener("click", () => {
     window.location.href = "/home.html";
@@ -260,6 +263,7 @@ if (summaryNavHome) {
 
 if (summaryNavRun) {
   summaryNavRun.addEventListener("click", () => {
+    clearLiveRunState();
     window.location.href = "/run.html";
   });
 }

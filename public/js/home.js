@@ -23,17 +23,34 @@ const homeNavProfile = document.getElementById("homeNavProfile");
 
 const RUN_STATE_KEY = "makeURunLiveState";
 
-function hasActiveLiveRun() {
+function safeNumber(value, fallback = 0) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+}
+
+function readLiveRunState() {
   try {
     const raw = localStorage.getItem(RUN_STATE_KEY);
-    if (!raw) return false;
+    if (!raw) return null;
 
     const data = JSON.parse(raw);
-    return !!data.isRunning;
+
+    if (!data || typeof data !== "object" || typeof data.isRunning !== "boolean") {
+      localStorage.removeItem(RUN_STATE_KEY);
+      return null;
+    }
+
+    return data;
   } catch (error) {
     console.error("Live run state read error:", error);
-    return false;
+    localStorage.removeItem(RUN_STATE_KEY);
+    return null;
   }
+}
+
+function hasActiveLiveRun() {
+  const data = readLiveRunState();
+  return !!(data && data.isRunning);
 }
 
 function setDefaultHomeStats() {
@@ -44,12 +61,7 @@ function setDefaultHomeStats() {
   if (homeTotalCalories) homeTotalCalories.textContent = "0";
   if (homeLongestRun) homeLongestRun.textContent = "0.00";
   if (homeStreakDays) homeStreakDays.textContent = "0";
-  if (homeStreakBadge) homeStreakBadge.textContent = "0 day streak";
-}
-
-function safeNumber(value, fallback = 0) {
-  const num = Number(value);
-  return Number.isFinite(num) ? num : fallback;
+  if (homeStreakBadge) homeStreakBadge.textContent = "0 days streak";
 }
 
 function updateStartButtonLabel() {
@@ -192,6 +204,10 @@ async function logoutUser() {
   }
 }
 
+function goToRunPage() {
+  window.location.href = "/run.html";
+}
+
 async function initHomePage() {
   const user = await ensureAuth();
   if (!user) return;
@@ -212,9 +228,7 @@ if (homeLogoutBtn) {
 
 /* Main action buttons */
 if (homeStartRunBtn) {
-  homeStartRunBtn.addEventListener("click", () => {
-    window.location.href = "/run.html";
-  });
+  homeStartRunBtn.addEventListener("click", goToRunPage);
 }
 
 if (homeHistoryBtn) {
@@ -237,9 +251,7 @@ if (homeNavHome) {
 }
 
 if (homeNavRun) {
-  homeNavRun.addEventListener("click", () => {
-    window.location.href = "/run.html";
-  });
+  homeNavRun.addEventListener("click", goToRunPage);
 }
 
 if (homeNavHistory) {

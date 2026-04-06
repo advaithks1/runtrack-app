@@ -21,9 +21,9 @@ const runNavProfile = document.getElementById("runNavProfile");
 const RUN_STATE_KEY = "makeURunLiveState";
 
 // ===== GPS FILTER SETTINGS =====
-const MAX_ACCEPTABLE_ACCURACY_METERS = 30; // ignore worse accuracy than this
-const MIN_MOVEMENT_KM = 0.008; // 8m min movement to avoid GPS jitter
-const MAX_JUMP_KM = 0.25; // 250m sudden jump protection
+const MAX_ACCEPTABLE_ACCURACY_METERS = 30;
+const MIN_MOVEMENT_KM = 0.008; // 8m
+const MAX_JUMP_KM = 0.25; // 250m
 
 let map;
 let routeLine;
@@ -52,7 +52,6 @@ let followUser = true;
 
 function formatTime(totalSeconds) {
   const safeSeconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));
-
   const hrs = Math.floor(safeSeconds / 3600);
   const mins = Math.floor((safeSeconds % 3600) / 60);
   const secs = safeSeconds % 60;
@@ -71,7 +70,6 @@ function formatPace(distance, seconds) {
 }
 
 function calculateCalories(distance) {
-  // Simple beginner estimate: ~62 kcal per km
   if (distance <= 0) return 0;
   return Math.round(distance * 62);
 }
@@ -91,8 +89,9 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 
   const a =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) ** 2;
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) ** 2;
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
@@ -109,63 +108,11 @@ function updateUI() {
 }
 
 function updateGPSStatus(text) {
-  if (gpsStatus) {
-    gpsStatus.textContent = text;
-  }
+  if (gpsStatus) gpsStatus.textContent = text;
 }
 
-function initMap() {
-  const runMapEl = document.getElementById("runMap");
-
-  if (!runMapEl) {
-    updateGPSStatus("Map container not found.");
-    return;
-  }
-
-  if (typeof L === "undefined") {
-    updateGPSStatus("Map library failed to load.");
-    return;
-  }
-
-  map = L.map("runMap").setView([8.0883, 77.5385], 15);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(map);
-
-  routeLine = L.polyline([], { weight: 5 }).addTo(map);
-
-  // If user manually moves map, stop auto-follow
-  map.on("dragstart zoomstart", () => {
-    followUser = false;
-  });
-
-  setTimeout(() => {
-    if (map) map.invalidateSize();
-  }, 250);
-}
-
-function renderExistingRoute() {
-  if (!map || !routeLine) return;
-
-  routeLine.setLatLngs(routePoints.map((p) => [p.lat, p.lng]));
-
-  if (routePoints.length > 0) {
-    const last = routePoints[routePoints.length - 1];
-
-    if (currentMarker) {
-      currentMarker.setLatLng([last.lat, last.lng]);
-    } else {
-      currentMarker = L.marker([last.lat, last.lng]).addTo(map);
-    }
-
-    if (routePoints.length > 1) {
-      const bounds = L.latLngBounds(routePoints.map((p) => [p.lat, p.lng]));
-      map.fitBounds(bounds, { padding: [20, 20] });
-    } else {
-      map.setView([last.lat, last.lng], 17);
-    }
-  }
+function isValidRunState(data) {
+  return data && typeof data === "object" && typeof data.isRunning === "boolean";
 }
 
 function saveRunState() {
@@ -194,6 +141,10 @@ function loadRunState() {
     if (!raw) return false;
 
     const data = JSON.parse(raw);
+    if (!isValidRunState(data)) {
+      localStorage.removeItem(RUN_STATE_KEY);
+      return false;
+    }
 
     isRunning = !!data.isRunning;
     isPaused = !!data.isPaused;
@@ -256,7 +207,7 @@ function startTimer() {
   stopTimer();
 
   timerInterval = setInterval(() => {
-    if (!isRunning) return;
+    if (!isRunning || isPaused) return;
 
     elapsedSeconds = getActiveElapsedSeconds();
     avgPace = distanceKm > 0 ? (elapsedSeconds / 60) / distanceKm : 0;
@@ -276,6 +227,60 @@ function stopTimer() {
   if (timerInterval) {
     clearInterval(timerInterval);
     timerInterval = null;
+  }
+}
+
+function initMap() {
+  const runMapEl = document.getElementById("runMap");
+
+  if (!runMapEl) {
+    updateGPSStatus("Map container not found.");
+    return;
+  }
+
+  if (typeof L === "undefined") {
+    updateGPSStatus("Map library failed to load.");
+    return;
+  }
+
+  map = L.map("runMap").setView([8.0883, 77.5385], 15);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+
+  routeLine = L.polyline([], { weight: 5 }).addTo(map);
+
+  map.on("dragstart zoomstart", () => {
+    followUser = false;
+    saveRunState();
+  });
+
+  setTimeout(() => {
+    if (map) map.invalidateSize();
+  }, 250);
+}
+
+function renderExistingRoute() {
+  if (!map || !routeLine) return;
+
+  routeLine.setLatLngs(routePoints.map((p) => [p.lat, p.lng]));
+
+  if (routePoints.length === 0) return;
+
+  const last = routePoints[routePoints.length - 1];
+
+  if (currentMarker) {
+    currentMarker.setLatLng([last.lat, last.lng]);
+  } else {
+    currentMarker = L.marker([last.lat, last.lng]).addTo(map);
+  }
+
+  if (routePoints.length > 1) {
+    const bounds = L.latLngBounds(routePoints.map((p) => [p.lat, p.lng]));
+    map.fitBounds(bounds, { padding: [20, 20] });
+  } else {
+    map.setView([last.lat, last.lng], 17);
   }
 }
 
@@ -316,7 +321,6 @@ function handlePosition(position) {
     timestamp: Date.now()
   };
 
-  // First valid point
   if (!lastPosition) {
     lastPosition = current;
     updateMapWithAcceptedPoint(current);
@@ -338,7 +342,6 @@ function handlePosition(position) {
     current.lng
   );
 
-  // Ignore tiny GPS noise
   if (segment < MIN_MOVEMENT_KM) {
     elapsedSeconds = getActiveElapsedSeconds();
     avgSpeedKmh = calculateAvgSpeed(distanceKm, elapsedSeconds);
@@ -346,13 +349,11 @@ function handlePosition(position) {
     return;
   }
 
-  // Ignore sudden unrealistic jumps
   if (segment > MAX_JUMP_KM) {
     updateGPSStatus("GPS jump ignored. Waiting for stable tracking...");
     return;
   }
 
-  // Accept clean point
   distanceKm += segment;
   lastPosition = current;
 
@@ -413,19 +414,23 @@ function stopTracking() {
 
 function applyIdleUI() {
   if (startRunBtn) startRunBtn.disabled = false;
+
   if (pauseResumeBtn) {
     pauseResumeBtn.disabled = true;
     pauseResumeBtn.textContent = "Pause";
   }
+
   if (stopRunBtn) stopRunBtn.disabled = true;
 }
 
 function applyRunningUI() {
   if (startRunBtn) startRunBtn.disabled = true;
+
   if (pauseResumeBtn) {
     pauseResumeBtn.disabled = false;
     pauseResumeBtn.textContent = isPaused ? "Resume" : "Pause";
   }
+
   if (stopRunBtn) stopRunBtn.disabled = false;
 }
 
@@ -443,6 +448,7 @@ function resetRunVisuals() {
 function resetRunState() {
   stopTracking();
   stopTimer();
+  clearRunState();
 
   isRunning = false;
   isPaused = false;
@@ -462,18 +468,15 @@ function resetRunState() {
   followUser = true;
 
   resetRunVisuals();
-  clearRunState();
-
   updateUI();
   updateGPSStatus("Waiting to start...");
   applyIdleUI();
 }
 
 function startRun() {
-  if (isRunning) return;
-
   stopTracking();
   stopTimer();
+  clearRunState();
 
   isRunning = true;
   isPaused = false;
@@ -505,18 +508,27 @@ function startRun() {
 function togglePauseResume() {
   if (!isRunning) return;
 
-  isPaused = !isPaused;
-
-  if (isPaused) {
+  if (!isPaused) {
+    isPaused = true;
     pausedAt = Date.now();
+
     stopTracking();
+    stopTimer();
+
+    elapsedSeconds = getActiveElapsedSeconds();
+    updateUI();
     updateGPSStatus("Run paused. GPS paused too.");
   } else {
+    isPaused = false;
+
     if (pausedAt) {
       totalPausedMs += Date.now() - pausedAt;
     }
+
     pausedAt = null;
     updateGPSStatus("Run resumed. Tracking active.");
+
+    startTimer();
     startTracking();
   }
 
@@ -573,17 +585,19 @@ async function finishAndSaveRun() {
     window.location.href = "/summary.html";
   } catch (error) {
     console.error("Save run error:", error);
-
     updateGPSStatus("Failed to save run. Please try again.");
 
-    // restore running state so user can retry
     isRunning = true;
     isPaused = false;
+
+    if (!runStartedAt) {
+      runStartedAt = Date.now() - elapsedSeconds * 1000;
+    }
+
     pausedAt = null;
 
     applyRunningUI();
     saveRunState();
-
     startTimer();
     startTracking();
   }
@@ -595,9 +609,11 @@ function recenterMapToUser() {
   if (!map) return;
 
   if (lastPosition) {
-    map.setView([lastPosition.lat, lastPosition.lng], Math.max(map.getZoom(), 16), {
-      animate: true
-    });
+    map.setView(
+      [lastPosition.lat, lastPosition.lng],
+      Math.max(map.getZoom(), 16),
+      { animate: true }
+    );
     updateGPSStatus("Following your live location.");
   } else {
     updateGPSStatus("Waiting for first GPS lock...");
@@ -627,7 +643,6 @@ function restoreLiveRunIfAny() {
 
   if (isPaused) {
     updateGPSStatus("Restored paused run.");
-    startTimer();
   } else {
     updateGPSStatus("Restored live run after refresh.");
     startTimer();
@@ -688,6 +703,8 @@ window.addEventListener("beforeunload", () => {
 
   if (isRunning) {
     elapsedSeconds = getActiveElapsedSeconds();
+    calories = calculateCalories(distanceKm);
+    avgPace = distanceKm > 0 ? (elapsedSeconds / 60) / distanceKm : 0;
     avgSpeedKmh = calculateAvgSpeed(distanceKm, elapsedSeconds);
     saveRunState();
   }

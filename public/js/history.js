@@ -99,7 +99,7 @@ function createRunCard(run) {
   const runId = safeRun._id;
   const distance = safeRun.distanceKm.toFixed(2);
   const duration = formatTime(safeRun.durationSec);
-  const calories = safeRun.calories;
+  const calories = String(safeRun.calories);
   const pace = formatPace(safeRun.avgPaceMinPerKm);
   const speed = formatSpeed(safeRun.avgSpeedKmh);
   const createdAt = formatDate(safeRun.createdAt);
@@ -247,7 +247,9 @@ async function deleteRun(runId, cardElement) {
       cardElement.remove();
     }
 
-    const remainingCards = historyList ? historyList.querySelectorAll(".run-item") : [];
+    const remainingCards = historyList
+      ? historyList.querySelectorAll(".run-item")
+      : [];
 
     if (!remainingCards || remainingCards.length === 0) {
       if (historyList) {
@@ -255,13 +257,19 @@ async function deleteRun(runId, cardElement) {
       }
       setHistoryStatus("Run deleted. No runs remaining.");
     } else {
-      setHistoryStatus(`Run deleted. ${remainingCards.length} run${remainingCards.length > 1 ? "s" : ""} remaining.`);
+      setHistoryStatus(
+        `Run deleted. ${remainingCards.length} run${remainingCards.length > 1 ? "s" : ""} remaining.`
+      );
     }
   } catch (error) {
     console.error("Delete run error:", error);
     setHistoryStatus("Failed to delete run.");
     alert("Could not delete this run. Please try again.");
   }
+}
+
+function goToRunPage() {
+  window.location.href = "/run.html";
 }
 
 async function initHistoryPage() {
@@ -275,14 +283,12 @@ async function initHistoryPage() {
   await loadRuns();
 }
 
-/* Top button */
 if (historyBackHomeBtn) {
   historyBackHomeBtn.addEventListener("click", () => {
     window.location.href = "/home.html";
   });
 }
 
-/* Bottom nav */
 if (historyNavHome) {
   historyNavHome.addEventListener("click", () => {
     window.location.href = "/home.html";
@@ -290,9 +296,7 @@ if (historyNavHome) {
 }
 
 if (historyNavRun) {
-  historyNavRun.addEventListener("click", () => {
-    window.location.href = "/run.html";
-  });
+  historyNavRun.addEventListener("click", goToRunPage);
 }
 
 if (historyNavHistory) {
