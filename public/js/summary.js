@@ -115,15 +115,17 @@ function renderSummaryRoute(routePoints = []) {
   if (!summaryMap || !summaryRouteLine) return;
 
   const validPoints = Array.isArray(routePoints)
-    ? routePoints.filter(
-        (point) =>
-          point &&
-          Number.isFinite(Number(point.lat)) &&
-          Number.isFinite(Number(point.lng))
-      ).map((point) => ({
-        lat: Number(point.lat),
-        lng: Number(point.lng)
-      }))
+    ? routePoints
+        .filter(
+          (point) =>
+            point &&
+            Number.isFinite(Number(point.lat)) &&
+            Number.isFinite(Number(point.lng))
+        )
+        .map((point) => ({
+          lat: Number(point.lat),
+          lng: Number(point.lng)
+        }))
     : [];
 
   clearSummaryMap();
@@ -159,7 +161,7 @@ async function ensureAuth() {
     });
 
     if (!res.ok) {
-      window.location.href = "/";
+      window.location.href = "/index.html";
       return null;
     }
 
@@ -167,7 +169,7 @@ async function ensureAuth() {
     return data.user;
   } catch (error) {
     console.error("Summary auth check error:", error);
-    window.location.href = "/";
+    window.location.href = "/index.html";
     return null;
   }
 }
@@ -226,51 +228,51 @@ async function initSummaryPage() {
 /* Top/Home button */
 if (summaryBackHomeBtn) {
   summaryBackHomeBtn.addEventListener("click", () => {
-    window.location.href = "/home";
+    window.location.href = "/home.html";
   });
 }
 
 /* Action buttons */
 if (summaryRunAgainBtn) {
   summaryRunAgainBtn.addEventListener("click", () => {
-    window.location.href = "/run";
+    window.location.href = "/run.html";
   });
 }
 
 if (summaryGoHistoryBtn) {
   summaryGoHistoryBtn.addEventListener("click", () => {
-    window.location.href = "/history";
+    window.location.href = "/history.html";
   });
 }
 
 if (summaryGoProfileBtn) {
   summaryGoProfileBtn.addEventListener("click", () => {
-    window.location.href = "/profile";
+    window.location.href = "/profile.html";
   });
 }
 
 /* Bottom nav */
 if (summaryNavHome) {
   summaryNavHome.addEventListener("click", () => {
-    window.location.href = "/home";
+    window.location.href = "/home.html";
   });
 }
 
 if (summaryNavRun) {
   summaryNavRun.addEventListener("click", () => {
-    window.location.href = "/run";
+    window.location.href = "/run.html";
   });
 }
 
 if (summaryNavHistory) {
   summaryNavHistory.addEventListener("click", () => {
-    window.location.href = "/history";
+    window.location.href = "/history.html";
   });
 }
 
 if (summaryNavProfile) {
   summaryNavProfile.addEventListener("click", () => {
-    window.location.href = "/profile";
+    window.location.href = "/profile.html";
   });
 }
 

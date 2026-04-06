@@ -1,4 +1,4 @@
-const CACHE_NAME = "make-u-run-v2";
+const CACHE_NAME = "make-u-run-v3";
 
 const ASSETS_TO_CACHE = [
   "/",
@@ -43,6 +43,7 @@ self.addEventListener("activate", (event) => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
+          return null;
         })
       )
     )
@@ -58,35 +59,36 @@ self.addEventListener("fetch", (event) => {
   // Only handle GET requests
   if (request.method !== "GET") return;
 
-  // ❌ Never cache/intercept API requests (important for auth)
+  // Never cache/intercept API requests (important for auth/session)
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(fetch(request));
     return;
   }
 
-  // Handle page navigation requests
+  // Handle page navigation requests safely
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
-        .then((networkResponse) => {
-          return networkResponse;
-        })
-        .catch(() => {
-          return caches.match("/index.html").then((cachedPage) => {
-            return (
-              cachedPage ||
-              new Response("Offline", {
-                status: 503,
-                statusText: "Offline"
-              })
-            );
+        .then((networkResponse) => networkResponse)
+        .catch(async () => {
+          // Try exact page from cache first
+          const exactPage = await caches.match(request);
+          if (exactPage) return exactPage;
+
+          // If exact page not found, fallback to index page
+          const indexPage = await caches.match("/index.html");
+          if (indexPage) return indexPage;
+
+          return new Response("Offline", {
+            status: 503,
+            statusText: "Offline"
           });
         })
     );
     return;
   }
 
-  // Handle static assets (CSS, JS, images, icons, etc.)
+  // Handle static assets (cache first, then network)
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -95,8 +97,12 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(request)
         .then((networkResponse) => {
-          // Cache only valid successful responses
-          if (networkResponse && networkResponse.status === 200) {
+          // Cache only successful same-origin responses
+          if (
+            networkResponse &&
+            networkResponse.status === 200 &&
+            url.origin === self.location.origin
+          ) {
             const responseClone = networkResponse.clone();
 
             caches.open(CACHE_NAME).then((cache) => {
@@ -107,7 +113,6 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // If icon/image/css/js missing, return safe response
           return new Response("Offline or file not found", {
             status: 503,
             statusText: "Offline"

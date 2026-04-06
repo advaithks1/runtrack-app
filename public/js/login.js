@@ -87,7 +87,7 @@ async function checkAlreadyLoggedIn() {
     });
 
     if (res.ok) {
-      window.location.href = "/home";
+      window.location.href = "/home.html";
     }
   } catch (error) {
     console.error("Auto-login check error:", error);
@@ -125,7 +125,7 @@ async function handleLogin(event) {
     }
 
     setAuthMessage("Login successful! Redirecting...");
-    window.location.href = "/home";
+    window.location.href = "/home.html";
   } catch (error) {
     console.error("Login error:", error);
     setAuthMessage(error.message || "Login failed. Please try again.", true);
@@ -175,7 +175,7 @@ async function handleRegister(event) {
     }
 
     setAuthMessage("Account created successfully! Redirecting...");
-    window.location.href = "/home";
+    window.location.href = "/home.html";
   } catch (error) {
     console.error("Register error:", error);
     setAuthMessage(error.message || "Registration failed. Please try again.", true);

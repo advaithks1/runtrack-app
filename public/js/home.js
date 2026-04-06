@@ -112,7 +112,7 @@ async function ensureAuth() {
     });
 
     if (!res.ok) {
-      window.location.href = "/";
+      window.location.href = "/index.html";
       return null;
     }
 
@@ -120,7 +120,7 @@ async function ensureAuth() {
     return data.user;
   } catch (error) {
     console.error("Home auth check error:", error);
-    window.location.href = "/";
+    window.location.href = "/index.html";
     return null;
   }
 }
@@ -146,33 +146,13 @@ async function loadHomeStats() {
     const longestRunKm = Math.max(0, safeNumber(data.longestRunKm, 0));
     const streakDays = Math.max(0, Math.floor(safeNumber(data.streakDays, 0)));
 
-    if (homeTotalRuns) {
-      homeTotalRuns.textContent = String(totalRuns);
-    }
-
-    if (homeTotalDistance) {
-      homeTotalDistance.textContent = totalDistanceKm.toFixed(2);
-    }
-
-    if (homeWeeklyDistance) {
-      homeWeeklyDistance.textContent = weeklyDistanceKm.toFixed(2);
-    }
-
-    if (homeAvgSpeed) {
-      homeAvgSpeed.textContent = overallAvgSpeedKmh.toFixed(2);
-    }
-
-    if (homeTotalCalories) {
-      homeTotalCalories.textContent = String(totalCalories);
-    }
-
-    if (homeLongestRun) {
-      homeLongestRun.textContent = longestRunKm.toFixed(2);
-    }
-
-    if (homeStreakDays) {
-      homeStreakDays.textContent = String(streakDays);
-    }
+    if (homeTotalRuns) homeTotalRuns.textContent = String(totalRuns);
+    if (homeTotalDistance) homeTotalDistance.textContent = totalDistanceKm.toFixed(2);
+    if (homeWeeklyDistance) homeWeeklyDistance.textContent = weeklyDistanceKm.toFixed(2);
+    if (homeAvgSpeed) homeAvgSpeed.textContent = overallAvgSpeedKmh.toFixed(2);
+    if (homeTotalCalories) homeTotalCalories.textContent = String(totalCalories);
+    if (homeLongestRun) homeLongestRun.textContent = longestRunKm.toFixed(2);
+    if (homeStreakDays) homeStreakDays.textContent = String(streakDays);
 
     setGoalAndMotivation({
       totalRuns,
@@ -205,7 +185,7 @@ async function logoutUser() {
     }
 
     localStorage.removeItem(RUN_STATE_KEY);
-    window.location.href = "/";
+    window.location.href = "/index.html";
   } catch (error) {
     console.error("Logout error:", error);
     alert("Could not logout right now. Please try again.");
@@ -233,44 +213,44 @@ if (homeLogoutBtn) {
 /* Main action buttons */
 if (homeStartRunBtn) {
   homeStartRunBtn.addEventListener("click", () => {
-    window.location.href = "/run";
+    window.location.href = "/run.html";
   });
 }
 
 if (homeHistoryBtn) {
   homeHistoryBtn.addEventListener("click", () => {
-    window.location.href = "/history";
+    window.location.href = "/history.html";
   });
 }
 
 if (homeProfileBtn) {
   homeProfileBtn.addEventListener("click", () => {
-    window.location.href = "/profile";
+    window.location.href = "/profile.html";
   });
 }
 
 /* Bottom nav */
 if (homeNavHome) {
   homeNavHome.addEventListener("click", () => {
-    window.location.href = "/home";
+    window.location.href = "/home.html";
   });
 }
 
 if (homeNavRun) {
   homeNavRun.addEventListener("click", () => {
-    window.location.href = "/run";
+    window.location.href = "/run.html";
   });
 }
 
 if (homeNavHistory) {
   homeNavHistory.addEventListener("click", () => {
-    window.location.href = "/history";
+    window.location.href = "/history.html";
   });
 }
 
 if (homeNavProfile) {
   homeNavProfile.addEventListener("click", () => {
-    window.location.href = "/profile";
+    window.location.href = "/profile.html";
   });
 }
 

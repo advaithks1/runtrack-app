@@ -183,7 +183,7 @@ async function ensureAuth() {
     });
 
     if (!res.ok) {
-      window.location.href = "/";
+      window.location.href = "/index.html";
       return null;
     }
 
@@ -191,7 +191,7 @@ async function ensureAuth() {
     return data.user;
   } catch (error) {
     console.error("History auth check error:", error);
-    window.location.href = "/";
+    window.location.href = "/index.html";
     return null;
   }
 }
@@ -278,32 +278,32 @@ async function initHistoryPage() {
 /* Top button */
 if (historyBackHomeBtn) {
   historyBackHomeBtn.addEventListener("click", () => {
-    window.location.href = "/home";
+    window.location.href = "/home.html";
   });
 }
 
 /* Bottom nav */
 if (historyNavHome) {
   historyNavHome.addEventListener("click", () => {
-    window.location.href = "/home";
+    window.location.href = "/home.html";
   });
 }
 
 if (historyNavRun) {
   historyNavRun.addEventListener("click", () => {
-    window.location.href = "/run";
+    window.location.href = "/run.html";
   });
 }
 
 if (historyNavHistory) {
   historyNavHistory.addEventListener("click", () => {
-    window.location.href = "/history";
+    window.location.href = "/history.html";
   });
 }
 
 if (historyNavProfile) {
   historyNavProfile.addEventListener("click", () => {
-    window.location.href = "/profile";
+    window.location.href = "/profile.html";
   });
 }
 

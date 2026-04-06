@@ -12,32 +12,31 @@ const PORT = process.env.PORT || 10000;
 // Trust proxy (important for Render / reverse proxy / secure cookies)
 app.set("trust proxy", 1);
 
+// =============================
 // Middlewares
+// =============================
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// =============================
 // Serve static files from /public
+// =============================
 app.use(express.static(path.join(__dirname, "public")));
 
-// MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("✅ MongoDB Connected");
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB Error:", err.message);
-  });
-
+// =============================
 // API Routes
+// =============================
 const authRoutes = require("./routes/auth");
 const runRoutes = require("./routes/run");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/runs", runRoutes);
 
-// Static Page Routes
+// =============================
+// Static Page Routes (optional but useful)
+// These support clean URLs like /home as well as /home.html
+// =============================
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -62,7 +61,9 @@ app.get("/profile", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "profile.html"));
 });
 
-// Health check route (Render can use this)
+// =============================
+// Health Check
+// =============================
 app.get("/health", (req, res) => {
   res.status(200).json({
     ok: true,
@@ -70,19 +71,36 @@ app.get("/health", (req, res) => {
   });
 });
 
+// =============================
 // 404 for unknown API routes only
+// =============================
 app.use("/api", (req, res) => {
   res.status(404).json({
     message: "API route not found"
   });
 });
 
-// Fallback to index/login page for unknown non-API routes
+// =============================
+// Fallback for unknown non-API routes
+// IMPORTANT: do NOT return 404 here
+// =============================
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Start server
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Make U Run running on port ${PORT}`);
-});
+// =============================
+// Start server after MongoDB connects
+// =============================
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("✅ MongoDB Connected");
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Make U Run running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB Error:", err.message);
+    process.exit(1);
+  });

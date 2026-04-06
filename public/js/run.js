@@ -115,6 +115,13 @@ function updateGPSStatus(text) {
 }
 
 function initMap() {
+  const runMapEl = document.getElementById("runMap");
+
+  if (!runMapEl) {
+    updateGPSStatus("Map container not found.");
+    return;
+  }
+
   if (typeof L === "undefined") {
     updateGPSStatus("Map library failed to load.");
     return;
@@ -222,7 +229,7 @@ async function ensureAuth() {
     });
 
     if (!res.ok) {
-      window.location.href = "/";
+      window.location.href = "/index.html";
       return null;
     }
 
@@ -230,7 +237,7 @@ async function ensureAuth() {
     return data.user;
   } catch (error) {
     console.error("Auth check error:", error);
-    window.location.href = "/";
+    window.location.href = "/index.html";
     return null;
   }
 }
@@ -563,7 +570,7 @@ async function finishAndSaveRun() {
 
     clearRunState();
     updateGPSStatus("Run saved successfully!");
-    window.location.href = "/summary";
+    window.location.href = "/summary.html";
   } catch (error) {
     console.error("Save run error:", error);
 
@@ -647,31 +654,31 @@ if (recenterMapBtn) recenterMapBtn.addEventListener("click", recenterMapToUser);
 
 if (backHomeBtn) {
   backHomeBtn.addEventListener("click", () => {
-    window.location.href = "/home";
+    window.location.href = "/home.html";
   });
 }
 
 if (runNavHome) {
   runNavHome.addEventListener("click", () => {
-    window.location.href = "/home";
+    window.location.href = "/home.html";
   });
 }
 
 if (runNavRun) {
   runNavRun.addEventListener("click", () => {
-    window.location.href = "/run";
+    window.location.href = "/run.html";
   });
 }
 
 if (runNavHistory) {
   runNavHistory.addEventListener("click", () => {
-    window.location.href = "/history";
+    window.location.href = "/history.html";
   });
 }
 
 if (runNavProfile) {
   runNavProfile.addEventListener("click", () => {
-    window.location.href = "/profile";
+    window.location.href = "/profile.html";
   });
 }
 
