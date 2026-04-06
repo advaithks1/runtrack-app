@@ -9,9 +9,9 @@
   <title>Make U Run - Login</title>
   <meta name="theme-color" content="#0f172a" />
 
-  <!-- FIXED: use absolute paths for deployment -->
+  <!-- FINAL FIX: absolute path + cache bust -->
   <link rel="manifest" href="/manifest.json" />
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/style.css?v=999" />
 </head>
 <body class="auth-body">
   <div class="mobile-app-shell">
@@ -66,11 +66,7 @@
                 autocomplete="current-password"
                 required
               />
-              <button
-                type="button"
-                class="password-toggle-btn"
-                id="loginTogglePassword"
-              >
+              <button type="button" class="password-toggle-btn" id="loginTogglePassword">
                 Show
               </button>
             </div>
@@ -109,11 +105,7 @@
                 autocomplete="new-password"
                 required
               />
-              <button
-                type="button"
-                class="password-toggle-btn"
-                id="registerTogglePassword"
-              >
+              <button type="button" class="password-toggle-btn" id="registerTogglePassword">
                 Show
               </button>
             </div>
@@ -123,7 +115,7 @@
         </form>
       </section>
 
-      <!-- Footer Note -->
+      <!-- Footer -->
       <section class="info-card">
         <h3>Why Make U Run?</h3>
         <p>
@@ -134,7 +126,7 @@
     </div>
   </div>
 
-  <!-- FIXED: use absolute path for deployment -->
+  <!-- FINAL FIX: absolute path -->
   <script src="/js/login.js"></script>
 </body>
 </html>

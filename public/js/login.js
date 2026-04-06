@@ -1,3 +1,12 @@
+// =============================
+// FORCE CLEAR OLD SERVICE WORKERS / CACHE ISSUE
+// =============================
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((registration) => registration.unregister());
+  });
+}
+
 const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
 const authMessage = document.getElementById("authMessage");
