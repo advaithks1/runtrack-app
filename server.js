@@ -82,7 +82,7 @@ app.use("/api", (req, res) => {
 
 // =============================
 // Fallback for unknown non-API routes
-// IMPORTANT: do NOT return 404 here
+// IMPORTANT: do NOT return 404 here add
 // =============================
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
